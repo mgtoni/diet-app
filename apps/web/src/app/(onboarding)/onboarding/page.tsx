@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { TactileButton } from '@/components/ui/TactileButton';
 
 const GOALS = [
@@ -57,7 +56,6 @@ const GOALS = [
 
 export default function OnboardingGoalPage() {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
-  const router = useRouter();
 
   const handleContinue = () => {
     if (selectedGoal) {
@@ -74,7 +72,7 @@ export default function OnboardingGoalPage() {
           What is your primary goal?
         </h1>
         <p className="font-body-lg text-on-surface-variant max-w-xl mx-auto">
-          We'll tailor your experience and AI coaching based on your selection.
+          We&apos;ll tailor your experience and AI coaching based on your selection.
         </p>
       </div>
 

@@ -95,7 +95,7 @@ export default function DashboardPage() {
             <div className="font-label-md text-primary mb-2">LATEST AI COACH INSIGHT</div>
             <h4 className="font-headline-md text-ink-text mb-3">Magnesium &amp; Sleep Quality</h4>
             <p className="text-body-md text-on-surface-variant leading-relaxed mb-4">
-              I noticed your fiber intake was lower than usual yesterday. Try adding 2 tablespoons of chia seeds to your morning bowl—it'll help maintain your energy levels and support your 82-point nutrition score.
+              I noticed your fiber intake was lower than usual yesterday. Try adding 2 tablespoons of chia seeds to your morning bowl—it&apos;ll help maintain your energy levels and support your 82-point nutrition score.
             </p>
             <button className="text-primary font-bold flex items-center gap-2 hover:translate-x-1 transition-transform cursor-pointer">
               Learn More <span className="material-symbols-outlined">arrow_forward</span>
