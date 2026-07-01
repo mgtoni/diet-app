@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Colors */
+  --color-inverse-on-surface: #f2f0ed;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface-variant: #3f4848;
+  --color-tertiary-fixed-dim: #9ecfd1;
+  --color-secondary: #8e4e14;
+  --color-tertiary: #336366;
+  --color-on-primary-container: #f3fffe;
+  --color-surface-container-low: #f5f3ef;
+  --color-on-primary-fixed-variant: #024f51;
+  --color-on-background: #1b1c1a;
+  --color-on-secondary-fixed: #2f1400;
+  --color-on-error: #ffffff;
+  --color-primary-fixed-dim: #94d1d2;
+  --color-inverse-primary: #94d1d2;
+  --color-surface-container-highest: #e4e2de;
+  --color-outline-variant: #bfc8c8;
+  --color-tertiary-container: #4c7c7f;
+  --color-primary-container: #417e7f;
+  --color-error: #ba1a1a;
+  --color-on-primary-fixed: #002020;
+  --color-outline: #6f7979;
+  --color-surface: #fbf9f5;
+  --color-secondary-fixed-dim: #ffb780;
+  --color-surface-dim: #dbdad6;
+  --color-on-surface: #1b1c1a;
+  --color-surface-variant: #e4e2de;
+  --color-secondary-fixed: #ffdcc4;
+  --color-on-secondary-fixed-variant: #6f3800;
+  --color-error-container: #ffdad6;
+  --color-surface-tint: #286769;
+  --color-on-primary: #ffffff;
+  --color-secondary-container: #ffab69;
+  --color-on-tertiary-container: #f2ffff;
+  --color-background: #fbf9f5;
+  --color-on-tertiary: #ffffff;
+  --color-surface-bright: #fbf9f5;
+  --color-on-tertiary-fixed: #002021;
+  --color-on-error-container: #93000a;
+  --color-primary: #256566;
+  --color-tertiary-fixed: #b9ecee;
+  --color-primary-fixed: #afeeee;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #783d01;
+  --color-surface-container-high: #eae8e4;
+  --color-surface-container: #efeeea;
+  --color-on-tertiary-fixed-variant: #1a4e50;
+  --color-inverse-surface: #30312e;
+  --color-soft-teal: #508D8E;
+  --color-status-success: #2A9D8F;
+  --color-status-warning: #E9C46A;
+  --color-status-danger: #E76F51;
+  --color-ink-text: #264653;
+  --color-cream-bg: #FDFBF7;
+  --color-salmon-accent: #F4A261;
+  --color-mint-surface: #D8E2DC;
+
+  /* Spacing */
+  --spacing-gutter: 16px;
+  --spacing-base: 8px;
+  --spacing-section-gap: 48px;
+  --spacing-container-padding: 24px;
+
+  /* Fonts */
+  --font-body-lg: var(--font-hanken-grotesk);
+  --font-caption: var(--font-hanken-grotesk);
+  --font-headline-lg-mobile: var(--font-libre-caslon);
+  --font-display-lg: var(--font-libre-caslon);
+  --font-headline-md: var(--font-libre-caslon);
+  --font-headline-lg: var(--font-libre-caslon);
+  --font-body-md: var(--font-hanken-grotesk);
+  --font-label-md: var(--font-hanken-grotesk);
+}
+
+:root {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .tactile-button {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    box-shadow: 0 4px 0px 0px #dcdad6, 0 8px 24px -4px rgba(0,0,0,0.08);
+  }
+
+  .tactile-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0px 0px #dcdad6, 0 4px 12px -4px rgba(0,0,0,0.08);
+  }
+
+  .tactile-button.selected {
+    border: 2px solid var(--color-primary);
+    background-color: var(--color-on-primary-container);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .progress-bar-fill {
+    transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .smeg-shadow {
+    box-shadow: 0 4px 0px 0px #dcdad6, 0 8px 24px -4px rgba(0,0,0,0.08);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .smeg-shadow:hover {
+    transform: translateY(-4px);
+  }
+
+  .text-body-lg {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 400;
+  }
+  
+  .text-caption {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+
+  .text-headline-lg-mobile {
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 600;
+  }
+
+  .text-display-lg {
+    font-size: 48px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  .text-headline-md {
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 600;
+  }
+
+  .text-headline-lg {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 600;
+  }
+
+  .text-body-md {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+  }
+
+  .text-label-md {
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+}

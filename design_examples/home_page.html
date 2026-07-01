@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="en" class="light" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Libre+Caslon+Text:wght@400;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#ffab69",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#94d1d2",
+                    "primary-fixed": "#afeeee",
+                    "tertiary": "#336366",
+                    "outline": "#6f7979",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f5f3ef",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#286769",
+                    "outline-variant": "#bfc8c8",
+                    "surface-bright": "#fbf9f5",
+                    "inverse-surface": "#30312e",
+                    "soft-teal": "#508D8E",
+                    "surface": "#fbf9f5",
+                    "on-background": "#1b1c1a",
+                    "surface-variant": "#e4e2de",
+                    "surface-container-highest": "#e4e2de",
+                    "primary": "#256566",
+                    "primary-container": "#417e7f",
+                    "tertiary-fixed": "#b9ecee",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dbdad6",
+                    "on-primary-fixed-variant": "#024f51",
+                    "on-tertiary-fixed-variant": "#1a4e50",
+                    "mint-surface": "#D8E2DC",
+                    "on-primary-container": "#f3fffe",
+                    "secondary-fixed-dim": "#ffb780",
+                    "surface-container-lowest": "#ffffff",
+                    "status-success": "#2A9D8F",
+                    "secondary-fixed": "#ffdcc4",
+                    "surface-container-high": "#eae8e4",
+                    "tertiary-fixed-dim": "#9ecfd1",
+                    "status-warning": "#E9C46A",
+                    "inverse-primary": "#94d1d2",
+                    "ink-text": "#264653",
+                    "background": "#fbf9f5",
+                    "inverse-on-surface": "#f2f0ed",
+                    "on-primary": "#ffffff",
+                    "secondary": "#8e4e14",
+                    "status-danger": "#E76F51",
+                    "on-primary-fixed": "#002020",
+                    "on-tertiary-fixed": "#002021",
+                    "cream-bg": "#FDFBF7",
+                    "on-secondary-fixed": "#2f1400",
+                    "on-secondary-container": "#783d01",
+                    "tertiary-container": "#4c7c7f",
+                    "on-surface-variant": "#3f4848",
+                    "on-surface": "#1b1c1a",
+                    "error": "#ba1a1a",
+                    "salmon-accent": "#F4A261",
+                    "on-secondary-fixed-variant": "#6f3800",
+                    "surface-container": "#efeeea",
+                    "on-tertiary-container": "#f2ffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "base": "8px",
+                    "container-padding": "24px",
+                    "section-gap": "48px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Hanken Grotesk"],
+                    "label-md": ["Hanken Grotesk"],
+                    "display-lg": ["Libre Caslon Text"],
+                    "headline-lg": ["Libre Caslon Text"],
+                    "headline-lg-mobile": ["Libre Caslon Text"],
+                    "caption": ["Hanken Grotesk"],
+                    "headline-md": ["Libre Caslon Text"],
+                    "body-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-cream-bg text-on-surface font-body-md overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<nav class="bg-cream-bg dark:bg-surface-container-low shadow-sm sticky top-0 z-50 h-16 flex items-center">
+<div class="flex justify-between items-center w-full px-container-padding max-w-[1200px] mx-auto">
+<div class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">SavorAI</div>
+<div class="hidden md:flex gap-8 items-center">
+<a href="#" class="text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 font-label-md text-label-md hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200">Dashboard</a>
+<a href="#" class="text-on-surface-variant dark:text-outline font-label-md text-label-md hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200">Diary</a>
+<a href="#" class="text-on-surface-variant dark:text-outline font-label-md text-label-md hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200">Recipes</a>
+<a href="#" class="text-on-surface-variant dark:text-outline font-label-md text-label-md hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200">AI Coach</a>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">settings</span>
+<div class="w-8 h-8 rounded-full bg-mint-surface overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A soft-focus, studio portrait of a friendly woman with a warm smile, styled in mid-century modern aesthetic photography. The background is a clean, pale mint green. Soft, diffused lighting creates a professional yet approachable healthcare persona, consistent with a high-end wellness app's empathetic visual identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDJhZUtjHe1PBwk7rvf6sOzmKZotUgrCs1rXVoHtjfxCg_VBz3YOMHwkK_NhdijJQ-bsJIFGuG1GztihZ7Qpun2utEYIJgR4IYdVGIirer58bgAISf5KG8_bJvM9HY04-WLzvAi3QH7xUOhjxzCZ3CdSfNabQIizvqy4rFC-rUHVHIvl6y2IGpXp_WLBDzkjUwzF0h-B45DIHKQGoWjTxGJCJwJciZrxIuLehpzPwLkHldT8-na2WV-xzgfnVYUw1K1mqpZ6k97lk">
+</div>
+</div>
+</div>
+</nav>
+<div class="max-w-[1200px] mx-auto px-gutter py-gutter lg:flex lg:gap-gutter">
+<!-- Sidebar (Desktop) -->
+<aside class="hidden lg:flex flex-col h-[calc(100vh-80px)] py-gutter sticky top-20 w-64 bg-mint-surface dark:bg-surface-container rounded-r-xl shadow-md">
+<div class="px-6 mb-8">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Welcome back</h2>
+<p class="text-on-surface-variant text-caption mt-1">Healthy habits start here</p>
+</div>
+<nav class="flex-1 px-2 space-y-2">
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-full px-4 py-2 font-bold transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline px-4 py-2 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md">Diary</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline px-4 py-2 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="font-label-md">Recipes</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline px-4 py-2 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-md">AI Coach</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-outline px-4 py-2 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-md">Food Entry</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full text-on-secondary-container py-3 rounded-full font-bold transition-all bg-secondary-container shadow-md hover:bg-salmon-accent active:scale-95">
+                    Log Meal
+                </button>
+<div class="pt-4 border-t border-outline-variant/30 space-y-2">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md" href="#"><span class="material-symbols-outlined">settings</span> Settings</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md" href="#"><span class="material-symbols-outlined">help</span> Support</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:max-w-4xl space-y-gutter pb-32 lg:pb-0">
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Nutrition Score Card (6 cols) -->
+<section class="md:col-span-7 bg-white rounded-[24px] p-8 smeg-shadow border border-mint-surface relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md text-ink-text mb-6">Nutrition Score</h3>
+<div class="flex flex-col sm:flex-row items-center gap-8">
+<!-- Circular Gauge -->
+<div class="relative w-48 h-48">
+<svg class="w-full h-full">
+<circle class="text-surface-variant" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="12"></circle>
+<circle class="progress-ring__circle text-soft-teal" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="110.58" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-ink-text">82</span>
+<span class="font-label-md text-caption text-on-surface-variant">OPTIMAL</span>
+</div>
+</div>
+<div class="flex-1 space-y-4">
+<p class="text-body-md text-on-surface-variant">Your balance of micronutrients is excellent today. One more serving of leafy greens would reach perfection.</p>
+<div class="flex items-center gap-2 text-status-success font-bold">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-label-md">+5 points since yesterday</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Calories Card (5 cols) -->
+<section class="md:col-span-5 bg-white rounded-[24px] p-8 smeg-shadow border border-mint-surface flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-headline-md text-headline-md text-ink-text">Calories</h3>
+<span class="material-symbols-outlined text-primary-container p-2 bg-mint-surface rounded-full">bolt</span>
+</div>
+<div class="space-y-1">
+<div class="text-display-lg font-display-lg text-primary">642</div>
+<div class="font-label-md text-on-surface-variant uppercase tracking-wider">Remaining</div>
+</div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between text-caption mb-2">
+<span class="">1,558 consumed</span>
+<span class="">Goal: 2,200</span>
+</div>
+<div class="h-3 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 71%"></div>
+</div>
+</div>
+</section>
+<!-- Macros Bento (Web of Progress Bars) -->
+<section class="md:col-span-4 bg-white rounded-[24px] p-6 smeg-shadow border border-mint-surface space-y-6">
+<h4 class="font-label-md text-ink-text uppercase">Macros Balance</h4>
+<div class="space-y-5">
+<!-- Protein -->
+<div>
+<div class="flex justify-between font-label-md text-caption mb-1">
+<span class="text-ink-text">Protein</span>
+<span class="text-on-surface-variant">92g / 120g</span>
+</div>
+<div class="h-4 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-soft-teal rounded-full" style="width: 76%"></div>
+</div>
+</div>
+<!-- Carbs -->
+<div>
+<div class="flex justify-between font-label-md text-caption mb-1">
+<span class="text-ink-text">Carbs</span>
+<span class="text-on-surface-variant">184g / 250g</span>
+</div>
+<div class="h-4 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-status-warning rounded-full" style="width: 73%"></div>
+</div>
+</div>
+<!-- Fats -->
+<div>
+<div class="flex justify-between font-label-md text-caption mb-1">
+<span class="text-ink-text">Fats</span>
+<span class="text-on-surface-variant">42g / 70g</span>
+</div>
+<div class="h-4 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-salmon-accent rounded-full" style="width: 60%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Insight Card -->
+<section class="md:col-span-8 bg-cream-bg rounded-[24px] p-8 border border-primary/10 relative overflow-hidden flex flex-col md:flex-row gap-6">
+<!-- Subtle Mesh Background -->
+
+<div class="relative z-10 flex-shrink-0 w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="relative z-10 flex-1">
+<div class="font-label-md text-primary mb-2">LATEST AI COACH INSIGHT</div>
+<h4 class="font-headline-md text-headline-md text-ink-text mb-3">Magnesium &amp; Sleep Quality</h4>
+<p class="text-body-md text-on-surface-variant leading-relaxed mb-4">
+                            I noticed your fiber intake was lower than usual yesterday. Try adding 2 tablespoons of chia seeds to your morning bowl—it'll help maintain your energy levels and support your 82-point nutrition score.
+                        </p>
+<button class="text-primary font-bold flex items-center gap-2 hover:translate-x-1 transition-transform cursor-pointer">
+                            Learn More <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Today's Recommendation Section -->
+<section class="md:col-span-12">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-ink-text">Today's Recommendations</h3>
+<button class="text-on-surface-variant font-label-md hover:text-primary transition-colors">See all recipes</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Recommendation Card 1 -->
+<div class="bg-white rounded-[24px] overflow-hidden smeg-shadow border border-mint-surface group cursor-pointer">
+<div class="h-48 w-full relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A vibrant, high-end food photograph of a smoked salmon and avocado tartine on rustic sourdough. The plate is a speckled handmade ceramic, resting on a clean light wood table. Soft morning sunlight filters through a window, casting gentle shadows. Aesthetic is clean, minimalist, and nutritious, using the app's signature teal and cream tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiqkxMltJeig2omdh6QTsF-z8jHZFhzW5kjRbfd3KAWnpSbp6u0zoHdGghfEh0lJwEQfJGf7eaiTqraAZ1ubYSb0QWuBdkaTCn6F7W5eE6evjqOk2u43WdwQll9c7cC_kPA4TduULBoay4k2CTTsLeRxnAvdT2gnro4BNr8yx5tr7pMIZQQGC8ZZOzhszypCjyT2xn93ZO-SSeCzrmaVKPGlFn5gXTf3l2hXWsSxoNX5DHIyhQsYBLbtYDpWQd8y5rYKAMWYG2PSA">
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-caption font-bold text-ink-text">LUNCH</div>
+</div>
+<div class="p-6">
+<h5 class="font-headline-md text-headline-md text-ink-text mb-2">Smoked Salmon Tartine</h5>
+<div class="flex gap-4 text-caption text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 15 min</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">restaurant</span> 380 kcal</span>
+</div>
+</div>
+</div>
+<!-- Recommendation Card 2 -->
+<div class="bg-white rounded-[24px] overflow-hidden smeg-shadow border border-mint-surface group cursor-pointer">
+<div class="h-48 w-full relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A professional culinary photo of a colorful Mediterranean Buddha bowl featuring chickpeas, roasted sweet potato, kale, and a creamy tahini drizzle. The styling is contemporary retro-minimalist, with a focus on vibrant natural colors. Lighting is soft and even, highlighting the fresh textures of the ingredients against a pale mint surface background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYjMrNDP-VJ0ohucFF30oMPB-XdcPwsnhJ9W1vd_dLdmtadAaiU12KYMGGRRzPuCKfHe3uBwLg0nsN-TcFv2t03bjhJg3dnNfOBaeNOJVWQEOcO4RLinZ7s_QjJGmL9w_XAnJv8dhEQxn68uf_b0PKuWUT_zAKRhw_899Cn7tLB7HyT8H767cB9SLNltQK7bK-ewdw1MS0RaCYTMC1cxcj-_Zk2v6vtsTAlSm3OXN8WWGM5HKsGnW-MKgVA_gyNPjfRa4tLXfrD_g">
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-caption font-bold text-ink-text">DINNER</div>
+</div>
+<div class="p-6">
+<h5 class="font-headline-md text-headline-md text-ink-text mb-2">Tahini Power Bowl</h5>
+<div class="flex gap-4 text-caption text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> 25 min</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">restaurant</span> 520 kcal</span>
+</div>
+</div>
+</div>
+<!-- Recommendation Card 3 (Upgrade CTA style) -->
+<div class="bg-primary-container rounded-[24px] p-6 flex flex-col justify-between text-on-primary-container relative overflow-hidden border border-primary/20">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-secondary-container mb-4 text-[32px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<h5 class="font-headline-md text-headline-md mb-2">Custom Meal Plan</h5>
+<p class="text-body-md opacity-90">Unlock personalized recipes based on your specific magnesium deficiency.</p>
+</div>
+<button class="relative z-10 w-full mt-6 text-primary py-3 rounded-full font-bold transition-all active:scale-95 bg-white shadow-sm hover:bg-surface-bright">
+                                Upgrade to Elite Coach
+                            </button>
+<!-- Decorative Circle -->
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full"></div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface dark:bg-surface-container-high shadow-[0_-4px_20px_rgba(0,0,0,0.15)] lg:hidden h-20 px-4 pb-safe flex justify-around items-center rounded-t-3xl">
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-2xl p-2 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-md text-label-md">Diary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-label-md">Coach</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-colors" href="#">
+<span class="material-symbols-outlined">add_box</span>
+<span class="font-label-md text-label-md">Add</span>
+</a>
+</nav>
+<script class="">
+        // Micro-interaction for the progress ring
+        window.addEventListener('load', () => {
+            const circle = document.querySelector('.progress-ring__circle');
+            if(circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                
+                // Set to 82%
+                const offset = circumference - (82 / 100 * circumference);
+                circle.style.strokeDashoffset = offset;
+            }
+        });
+
+        // Soft interaction logic for cards
+        document.querySelectorAll('.smeg-shadow').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+                card.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+
+</body></html>

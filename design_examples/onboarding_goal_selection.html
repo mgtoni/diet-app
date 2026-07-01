@@ -1,0 +1,287 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SavorAI - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Libre+Caslon+Text:wght@400;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f2f0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#3f4848",
+                    "tertiary-fixed-dim": "#fdb795",
+                    "secondary": "#8e4e14",
+                    "tertiary": "#844f34",
+                    "on-primary-container": "#f3fffe",
+                    "surface-container-low": "#f5f3ef",
+                    "on-primary-fixed-variant": "#024f51",
+                    "on-background": "#1b1c1a",
+                    "on-secondary-fixed": "#2f1400",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#94d1d2",
+                    "inverse-primary": "#94d1d2",
+                    "surface-container-highest": "#e4e2de",
+                    "outline-variant": "#bfc8c8",
+                    "tertiary-container": "#a0674a",
+                    "primary-container": "#417e7f",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#002020",
+                    "outline": "#6f7979",
+                    "surface": "#fbf9f5",
+                    "secondary-fixed-dim": "#ffb780",
+                    "surface-dim": "#dbdad6",
+                    "on-surface": "#1b1c1a",
+                    "surface-variant": "#e4e2de",
+                    "secondary-fixed": "#ffdcc4",
+                    "on-secondary-fixed-variant": "#6f3800",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#286769",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#ffab69",
+                    "on-tertiary-container": "#fffbff",
+                    "background": "#fbf9f5",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#fbf9f5",
+                    "on-tertiary-fixed": "#351000",
+                    "on-error-container": "#93000a",
+                    "primary": "#256566",
+                    "tertiary-fixed": "#ffdbcc",
+                    "primary-fixed": "#afeeee",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#783d01",
+                    "surface-container-high": "#eae8e4",
+                    "surface-container": "#efeeea",
+                    "on-tertiary-fixed-variant": "#6a3a21",
+                    "inverse-surface": "#30312e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "base": "8px",
+                    "section-gap": "48px",
+                    "container-padding": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Hanken Grotesk"],
+                    "caption": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Libre Caslon Text"],
+                    "display-lg": ["Libre Caslon Text"],
+                    "headline-md": ["Libre Caslon Text"],
+                    "headline-lg": ["Libre Caslon Text"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f5;
+            color: #1b1c1a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .tactile-button {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            box-shadow: 0 4px 0px 0px #dcdad6, 0 8px 24px -4px rgba(0,0,0,0.08);
+        }
+
+        .tactile-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px 0px #dcdad6, 0 4px 12px -4px rgba(0,0,0,0.08);
+        }
+
+        .tactile-button.selected {
+            border: 2px solid #256566;
+            background-color: #f3fffe;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar-fill {
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md">
+<!-- Top Navigation / Progress -->
+<header class="fixed top-0 left-0 w-full z-50 px-container-padding h-20 flex items-center justify-between bg-surface">
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-primary tracking-tight font-bold">SavorAI</span>
+</div>
+<div class="hidden md:flex flex-col items-end gap-1 w-64">
+<div class="flex justify-between w-full mb-1">
+<span class="font-label-md text-on-surface-variant">Onboarding Progress</span>
+<span class="font-label-md text-primary font-bold">Step 1 of 5</span>
+</div>
+<div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="progress-bar-fill h-full bg-primary rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+<button class="text-on-surface-variant font-label-md hover:text-primary transition-colors">
+            Exit
+        </button>
+</header>
+<!-- Mobile Progress Bar (Sticky under header) -->
+<div class="md:hidden fixed top-20 left-0 w-full px-container-padding py-2 z-40 bg-surface">
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="progress-bar-fill h-full bg-primary rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-32 pb-24 px-container-padding max-w-[1200px] mx-auto w-full">
+<div class="text-center mb-12">
+<h1 class="font-headline-lg text-on-surface mb-3 md:text-display-lg">What is your primary goal?</h1>
+<p class="font-body-lg text-on-surface-variant max-w-xl mx-auto">We'll tailor your experience and AI coaching based on your selection.</p>
+</div>
+<!-- Goals Bento-Style Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+<!-- Lose Weight -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[32px]">monitor_weight</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">Lose weight</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Sustainable fat loss with smart nutritional guidance.</p>
+</div>
+</button>
+<!-- Gain Weight -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-secondary-fixed flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[32px]">fitness_center</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-secondary transition-colors">Gain weight</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Increase mass effectively through calorie-dense whole foods.</p>
+</div>
+</button>
+<!-- Build Muscle -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-tertiary-fixed flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[32px]">exercise</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-tertiary transition-colors">Build muscle</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Optimize protein intake and macro ratios for strength.</p>
+</div>
+</button>
+<!-- Eat Healthier -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-primary-fixed-dim flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[32px]">eco</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-primary transition-colors">Eat healthier</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Focus on micronutrients, variety, and mindful eating habits.</p>
+</div>
+</button>
+<!-- Manage Health -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[32px]">medical_services</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-error transition-colors">Manage health</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Track specific conditions like diabetes or heart health.</p>
+</div>
+</button>
+<!-- Maintain -->
+<button class="tactile-button group text-left bg-white p-8 rounded-[32px] flex flex-col gap-4 border border-surface-variant hover:border-primary/30 transition-all" onclick="selectGoal(this)">
+<div class="w-14 h-14 rounded-2xl bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[32px]">balance</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface group-hover:text-on-surface-variant transition-colors">Maintain</h3>
+<p class="font-body-md text-on-surface-variant mt-1">Keep your current physique while refining your nutrition.</p>
+</div>
+</button>
+</div>
+</main>
+<!-- Fixed Footer Controls -->
+<footer class="fixed bottom-0 left-0 w-full p-6 md:px-container-padding md:py-8 border-t border-surface-variant/50 z-50 bg-surface">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<button class="flex items-center gap-2 text-on-surface-variant font-label-md hover:text-primary transition-all px-4 py-2 rounded-xl">
+<span class="material-symbols-outlined">arrow_back</span>
+                Back
+            </button>
+<div class="flex items-center gap-6">
+<p class="hidden md:block font-caption text-on-surface-variant italic">Tip: You can change your goal later in settings.</p>
+<button class="bg-primary text-white font-label-md px-10 py-4 rounded-full tactile-button opacity-50 cursor-not-allowed transition-all flex items-center gap-2 shadow-lg" id="nextBtn" disabled="">
+                    Continue
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</footer>
+<!-- Background Decorative Element -->
+
+
+<script>
+        function selectGoal(element) {
+            // Remove selection from others
+            document.querySelectorAll('.tactile-button').forEach(btn => {
+                btn.classList.remove('selected', 'ring-2', 'ring-primary', 'bg-primary-container/10');
+                btn.classList.add('bg-white');
+            });
+
+            // Add selection to clicked
+            element.classList.add('selected', 'ring-2', 'ring-primary', 'bg-primary-container/10');
+            element.classList.remove('bg-white');
+
+            // Enable "Next" button
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            nextBtn.classList.add('hover:bg-primary-container', 'hover:scale-105');
+        }
+
+        // Add small micro-interaction for icons on hover
+        document.querySelectorAll('.tactile-button').forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                const icon = button.querySelector('.material-symbols-outlined');
+                if (icon) {
+                    icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    icon.style.transform = 'scale(1.2) rotate(5deg)';
+                }
+            });
+            button.addEventListener('mouseleave', () => {
+                const icon = button.querySelector('.material-symbols-outlined');
+                if (icon) {
+                    icon.style.transform = 'scale(1) rotate(0deg)';
+                }
+            });
+        });
+    </script>
+</body></html>
