@@ -1,3 +1,0 @@
-{
-  "installCommand": "rm -f package-lock.json node_modules/.package-lock.json && rm -rf node_modules/@tailwindcss && npm install"
-}
