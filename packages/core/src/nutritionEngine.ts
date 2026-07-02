@@ -93,6 +93,15 @@ export class NutritionEngine {
         break;
     }
 
+    // Add specific caloric requirements for pregnancy and lactation
+    if (metrics.pregnancyStatus === 'pregnant') {
+      // General safe baseline +300 kcal for pregnancy (average across trimesters)
+      calorieTarget += 300;
+    } else if (metrics.pregnancyStatus === 'breastfeeding') {
+      // General safe baseline +500 kcal for lactation
+      calorieTarget += 500;
+    }
+
     // Apply minimum floors
     const floor = this.CALORIE_FLOORS[metrics.sex];
     if (calorieTarget < floor) {
