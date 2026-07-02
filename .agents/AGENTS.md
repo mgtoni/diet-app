@@ -13,3 +13,9 @@ Instead, we use a prebuild script in `apps/web/package.json`:
 The `vercel-prebuild.js` script checks for `process.env.VERCEL` and forcefully installs the required Linux binaries (`npm install --no-save --force @tailwindcss/oxide-linux-x64-gnu lightningcss-linux-x64-gnu`) right before the build starts.
 
 **DO NOT** remove this script, and **DO NOT** attempt to fix native binding errors by creating a root `vercel.json`. If native binding errors occur for other platforms or packages in the future, apply the exact same conditional prebuild script pattern.
+
+# Next.js Workspace Configuration
+**CRITICAL RULE: Turbopack and Local Workspace Packages**
+When importing local packages (e.g. `@diet-app/core`) into a Next.js app running Turbopack, you will encounter `Unknown module type` build errors because Next.js attempts to resolve the raw `.ts` files inside `node_modules` without passing them through the typescript loader.
+**The Fix:** You MUST add the local package to the `transpilePackages` array in `next.config.ts`.
+Requirement check: Always verify `transpilePackages` includes any new workspace packages before pushing to GitHub.
