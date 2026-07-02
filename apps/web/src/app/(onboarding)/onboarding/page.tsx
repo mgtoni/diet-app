@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/utils/supabase/client';
 import { TactileButton } from '@/components/ui/TactileButton';
 import { useOnboarding } from '@/context/OnboardingContext';
 import { PrimaryGoal } from '@diet-app/core/src/nutritionEngine';
@@ -61,6 +62,42 @@ export default function OnboardingGoalPage() {
   const router = useRouter();
   const { state, updateState } = useOnboarding();
   const selectedGoal = state.goal;
+  
+  const [authChecking, setAuthChecking] = useState(true);
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setAuthChecking(false);
+      } else {
+        // If no session, wait a bit for PKCE exchange or redirect
+        const timer = setTimeout(() => {
+           setAuthChecking(false);
+           // We could redirect to /register here, but for now just let it render or show an error
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    });
+
+    // Listen for auth state changes (e.g., magic link code exchange completion)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setAuthChecking(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (authChecking) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p className="text-on-surface-variant">Authenticating securely...</p>
+      </div>
+    );
+  }
 
   const handleContinue = () => {
     if (selectedGoal) {
