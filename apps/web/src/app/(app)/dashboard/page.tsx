@@ -1,10 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { supabase } from '@/utils/supabase/client';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/register');
+      } else {
+        setLoading(false);
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-primary font-headline-md animate-pulse">Loading dashboard...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Dashboard Grid */}

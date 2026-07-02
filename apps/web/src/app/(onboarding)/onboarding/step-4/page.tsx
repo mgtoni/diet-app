@@ -12,23 +12,55 @@ export default function OnboardingDietPage() {
   const handleFinish = async () => {
     if (canProceedFromStep(4)) {
       try {
-        const { data, error } = await supabase
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session?.user) {
+          alert('You must be logged in to save your onboarding data. Please go back to the start.');
+          return;
+        }
+
+        const userId = session.user.id;
+
+        // 1. Update Profile
+        await supabase
+          .from('profiles')
+          .update({
+            biological_sex: state.biologicalSex,
+            height_cm: state.heightCm,
+            weight_kg: state.weightKg,
+          })
+          .eq('id', userId);
+
+        // 2. Insert Goal
+        if (state.goal) {
+          await supabase
+            .from('goals')
+            .insert([{ user_id: userId, goal_type: state.goal }]);
+        }
+
+        // 3. Insert Health Conditions
+        if (state.healthConditions && state.healthConditions.length > 0) {
+          const conditions = state.healthConditions.map(c => ({ user_id: userId, condition_name: c }));
+          await supabase.from('health_conditions').insert(conditions);
+        }
+
+        // 4. Insert Dietary Preferences
+        if (state.dietaryPreferences && state.dietaryPreferences.length > 0) {
+          const prefs = state.dietaryPreferences.map(p => ({ user_id: userId, preference_name: p }));
+          await supabase.from('dietary_preferences').insert(prefs);
+        }
+
+        // 5. Insert Allergies
+        if (state.allergies && state.allergies.length > 0) {
+          const allergies = state.allergies.map(a => ({ user_id: userId, allergen_name: a }));
+          await supabase.from('allergies').insert(allergies);
+        }
+
+        // 6. Update/Insert Onboarding State
+        const { error } = await supabase
           .from('onboarding_state')
-          .insert([
+          .upsert([
             {
-              goal: state.goal,
-              biological_sex: state.biologicalSex,
-              age: state.age,
-              height_cm: state.heightCm,
-              weight_kg: state.weightKg,
-              activity_level: state.activityLevel,
-              exercise_frequency: state.exerciseFrequency,
-              dietary_preferences: state.dietaryPreferences,
-              health_conditions: state.healthConditions,
-              allergies: state.allergies,
-              weight_unit: state.weightUnit || 'kg',
-              height_unit: state.heightUnit || 'cm',
-              energy_unit: 'kcal',
+              user_id: userId,
               step_completed: 4,
               is_completed: true,
               started_at: state.startedAt || new Date().toISOString(),
@@ -38,11 +70,11 @@ export default function OnboardingDietPage() {
           
         if (error) {
            console.error('Error saving onboarding state to Supabase:', error);
-           alert(`Failed to save onboarding state to Supabase. This may be due to missing Auth session. Error: ${error.message}`);
+           alert(`Failed to save onboarding state. Error: ${error.message}`);
            return;
         }
         
-        console.log('Wizard Completed! Data saved:', data);
+        console.log('Wizard Completed! Data saved successfully.');
         router.push('/dashboard');
       } catch (err) {
         console.error('Exception during save', err);
