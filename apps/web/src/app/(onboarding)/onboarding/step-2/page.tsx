@@ -17,6 +17,8 @@ export default function OnboardingBodyMetricsPage() {
   const [feet, setFeet] = useState<string>('');
   const [inches, setInches] = useState<string>('');
   const [lbs, setLbs] = useState<string>('');
+  
+  const [goalChangedAlert, setGoalChangedAlert] = useState(false);
 
   useEffect(() => {
     // Populate local imperial state if navigating back
@@ -92,13 +94,32 @@ export default function OnboardingBodyMetricsPage() {
             <Select
               label="Are you currently pregnant or breastfeeding?"
               value={state.pregnancyStatus || 'none'}
-              onChange={(e) => updateState({ pregnancyStatus: e.target.value as any, pregnancyConsent: false })}
+              onChange={(e) => {
+                const status = e.target.value as any;
+                const updates: any = { pregnancyStatus: status, pregnancyConsent: false };
+                
+                if ((status === 'pregnant' || status === 'breastfeeding') && state.goal?.startsWith('lose_weight')) {
+                  updates.goal = 'maintain';
+                  setGoalChangedAlert(true);
+                } else if (status === 'none') {
+                  setGoalChangedAlert(false);
+                }
+                
+                updateState(updates);
+              }}
               options={[
                 { label: 'Neither', value: 'none' },
                 { label: 'Yes, pregnant', value: 'pregnant' },
                 { label: 'Yes, breastfeeding', value: 'breastfeeding' },
               ]}
             />
+
+            {goalChangedAlert && (
+              <div className="p-3 bg-primary-container text-on-primary-container rounded-lg text-sm flex items-start gap-2 mt-1">
+                <span className="material-symbols-outlined text-[20px]">health_and_safety</span>
+                <p>For a healthy pregnancy/breastfeeding, we have automatically changed your goal from weight loss to healthy maintenance.</p>
+              </div>
+            )}
 
             {(state.pregnancyStatus === 'pregnant' || state.pregnancyStatus === 'breastfeeding') && (
               <label className="flex items-start gap-3 mt-2 cursor-pointer p-3 bg-surface rounded-lg border border-surface-variant hover:bg-surface-container-high transition-colors">
