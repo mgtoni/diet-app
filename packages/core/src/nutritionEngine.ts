@@ -18,6 +18,7 @@ export interface UserMetrics {
   sex: BiologicalSex;
   activityLevel: ActivityLevel;
   goal: PrimaryGoal;
+  pregnancyStatus?: 'pregnant' | 'breastfeeding' | 'none';
 }
 
 export interface NutritionTargets {
@@ -55,9 +56,18 @@ export class NutritionEngine {
     const bmr = this.calculateBMR(metrics.weightKg, metrics.heightCm, metrics.age, metrics.sex);
     const tdee = bmr * this.ACTIVITY_MULTIPLIERS[metrics.activityLevel];
     
+    let activeGoal = metrics.goal;
+    
+    // Safety pivot for pregnancy / breastfeeding
+    if (metrics.pregnancyStatus === 'pregnant' || metrics.pregnancyStatus === 'breastfeeding') {
+      if (activeGoal.startsWith('lose_weight')) {
+        activeGoal = 'maintain';
+      }
+    }
+    
     let calorieTarget = tdee;
     
-    switch (metrics.goal) {
+    switch (activeGoal) {
       case 'lose_weight_slow':
         calorieTarget = tdee - (bmr * 0.15);
         break;
@@ -94,15 +104,15 @@ export class NutritionEngine {
     let fatPct = 0.30;
     let carbsPct = 0.45;
 
-    if (metrics.goal.startsWith('lose_weight')) {
+    if (activeGoal.startsWith('lose_weight')) {
       proteinPct = 0.30;
       fatPct = 0.30;
       carbsPct = 0.40;
-    } else if (metrics.goal.startsWith('gain_weight')) {
+    } else if (activeGoal.startsWith('gain_weight')) {
       proteinPct = 0.25;
       fatPct = 0.25;
       carbsPct = 0.50;
-    } else if (metrics.goal === 'gain_muscle') {
+    } else if (activeGoal === 'gain_muscle') {
       proteinPct = 0.35;
       fatPct = 0.25;
       carbsPct = 0.40;

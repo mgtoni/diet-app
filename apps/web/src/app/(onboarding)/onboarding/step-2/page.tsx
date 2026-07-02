@@ -82,6 +82,40 @@ export default function OnboardingBodyMetricsPage() {
           ]}
         />
         
+        {state.biologicalSex === 'female' && (
+          <div className="flex flex-col gap-4 p-4 bg-surface-container rounded-xl border border-surface-variant">
+            <div className="text-sm text-on-surface-variant flex gap-2 items-start">
+              <span className="material-symbols-outlined text-primary text-xl">info</span>
+              <p>To ensure your calorie goals are safe and we don't recommend restricted foods, we need to ask about pregnancy.</p>
+            </div>
+            
+            <Select
+              label="Are you currently pregnant or breastfeeding?"
+              value={state.pregnancyStatus || 'none'}
+              onChange={(e) => updateState({ pregnancyStatus: e.target.value as any, pregnancyConsent: false })}
+              options={[
+                { label: 'Neither', value: 'none' },
+                { label: 'Yes, pregnant', value: 'pregnant' },
+                { label: 'Yes, breastfeeding', value: 'breastfeeding' },
+              ]}
+            />
+
+            {(state.pregnancyStatus === 'pregnant' || state.pregnancyStatus === 'breastfeeding') && (
+              <label className="flex items-start gap-3 mt-2 cursor-pointer p-3 bg-surface rounded-lg border border-surface-variant hover:bg-surface-container-high transition-colors">
+                <input 
+                  type="checkbox" 
+                  className="mt-0.5 w-5 h-5 rounded border-on-surface-variant text-primary focus:ring-primary flex-shrink-0"
+                  checked={state.pregnancyConsent || false}
+                  onChange={(e) => updateState({ pregnancyConsent: e.target.checked })}
+                />
+                <span className="text-sm text-on-surface leading-tight">
+                  I consent to Diet App processing my health data to personalize my diet safely.
+                </span>
+              </label>
+            )}
+          </div>
+        )}
+        
         <Input
           label="Age"
           type="number"

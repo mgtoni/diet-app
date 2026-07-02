@@ -20,6 +20,8 @@ export interface OnboardingState {
   waistCm?: number;
   hipCm?: number;
   bodyFatPct?: number;
+  pregnancyStatus?: 'pregnant' | 'breastfeeding' | 'none';
+  pregnancyConsent?: boolean;
   
   // Activity
   activityLevel?: ActivityLevel;
@@ -46,8 +48,15 @@ export class OnboardingService {
     switch(step) {
       case 1: // Goal Selection
         return !!state.goal;
-      case 2: // Body Metrics
-        return !!state.biologicalSex && !!state.age && state.age >= 18 && !!state.heightCm && !!state.weightKg;
+      case 2: { // Body Metrics
+        const hasBaseMetrics = !!state.biologicalSex && !!state.age && state.age >= 18 && !!state.heightCm && !!state.weightKg;
+        if (!hasBaseMetrics) return false;
+        if (state.biologicalSex === 'female') {
+          if (!state.pregnancyStatus) return false;
+          if ((state.pregnancyStatus === 'pregnant' || state.pregnancyStatus === 'breastfeeding') && !state.pregnancyConsent) return false;
+        }
+        return true;
+      }
       case 3: // Activity
         return !!state.activityLevel && !!state.exerciseFrequency;
       case 4: // Diet & Conditions

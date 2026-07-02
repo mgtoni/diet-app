@@ -56,7 +56,7 @@ export default function OnboardingDietPage() {
 
   const DIETARY_OPTIONS = ['Vegetarian', 'Vegan', 'Keto', 'Paleo', 'Pescatarian', 'Halal'];
   const ALLERGY_OPTIONS = ['Dairy', 'Gluten', 'Nuts', 'Soy', 'Eggs', 'Shellfish'];
-  const HEALTH_OPTIONS = ['Diabetes', 'Hypertension', 'Coeliac', 'PCOS', 'IBS', 'Pregnant'];
+  const HEALTH_OPTIONS = ['Diabetes', 'Hypertension', 'Coeliac', 'PCOS', 'IBS'];
 
   const toggleArrayItem = (key: 'dietaryPreferences' | 'allergies' | 'healthConditions', value: string) => {
     const current = state[key] || [];
