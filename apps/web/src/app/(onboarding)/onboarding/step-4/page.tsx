@@ -3,14 +3,50 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboarding } from '@/context/OnboardingContext';
+import { supabase } from '@/utils/supabase/client';
 
 export default function OnboardingDietPage() {
   const router = useRouter();
   const { state, updateState, canProceedFromStep } = useOnboarding();
 
-  const handleContinue = () => {
+  const handleFinish = async () => {
     if (canProceedFromStep(4)) {
-      router.push('/onboarding/step-5');
+      try {
+        const { data, error } = await supabase
+          .from('onboarding_state')
+          .insert([
+            {
+              goal: state.goal,
+              biological_sex: state.biologicalSex,
+              age: state.age,
+              height_cm: state.heightCm,
+              weight_kg: state.weightKg,
+              activity_level: state.activityLevel,
+              exercise_frequency: state.exerciseFrequency,
+              dietary_preferences: state.dietaryPreferences,
+              health_conditions: state.healthConditions,
+              allergies: state.allergies,
+              weight_unit: state.weightUnit || 'kg',
+              height_unit: state.heightUnit || 'cm',
+              energy_unit: 'kcal',
+              step_completed: 4,
+              is_completed: true,
+              started_at: state.startedAt || new Date().toISOString(),
+              completed_at: new Date().toISOString()
+            }
+          ]);
+          
+        if (error) {
+           console.error('Error saving onboarding state to Supabase:', error);
+           alert(`Failed to save onboarding state to Supabase. This may be due to missing Auth session. Error: ${error.message}`);
+           return;
+        }
+        
+        console.log('Wizard Completed! Data saved:', data);
+        router.push('/dashboard');
+      } catch (err) {
+        console.error('Exception during save', err);
+      }
     }
   };
 
@@ -20,7 +56,7 @@ export default function OnboardingDietPage() {
 
   const DIETARY_OPTIONS = ['Vegetarian', 'Vegan', 'Keto', 'Paleo', 'Pescatarian', 'Halal'];
   const ALLERGY_OPTIONS = ['Dairy', 'Gluten', 'Nuts', 'Soy', 'Eggs', 'Shellfish'];
-  const HEALTH_OPTIONS = ['Diabetes', 'Hypertension', 'Coeliac', 'PCOS', 'IBS'];
+  const HEALTH_OPTIONS = ['Diabetes', 'Hypertension', 'Coeliac', 'PCOS', 'IBS', 'Pregnant'];
 
   const toggleArrayItem = (key: 'dietaryPreferences' | 'allergies' | 'healthConditions', value: string) => {
     const current = state[key] || [];
@@ -93,7 +129,7 @@ export default function OnboardingDietPage() {
           </button>
           
           <button
-            onClick={handleContinue}
+            onClick={handleFinish}
             disabled={!canProceedFromStep(4)}
             className={`bg-primary text-white text-label-md px-10 py-4 rounded-full tactile-button flex items-center gap-2 shadow-lg transition-all ${
               canProceedFromStep(4)
@@ -101,7 +137,7 @@ export default function OnboardingDietPage() {
                 : 'opacity-50 cursor-not-allowed'
             }`}
           >
-            Continue
+            Finish
             <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </div>

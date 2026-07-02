@@ -89,38 +89,13 @@ export default function OnboardingGoalPage() {
             iconColorClass={goal.iconColorClass}
             hoverColorClass={goal.hoverColorClass}
             selected={selectedGoal === goal.id}
-            onClick={() => updateState({ goal: goal.id as PrimaryGoal })}
+            onClick={() => {
+              updateState({ goal: goal.id as PrimaryGoal });
+              router.push('/onboarding/step-2');
+            }}
           />
         ))}
       </div>
-
-      {/* Fixed Footer Controls */}
-      <footer className="fixed bottom-0 left-0 w-full p-6 md:px-container-padding md:py-8 border-t border-surface-variant/50 z-50 bg-surface">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-          <button className="flex items-center gap-2 text-on-surface-variant text-label-md hover:text-primary transition-all px-4 py-2 rounded-xl">
-            <span className="material-symbols-outlined">arrow_back</span>
-            Back
-          </button>
-          
-          <div className="flex items-center gap-6">
-            <p className="hidden md:block text-caption text-on-surface-variant italic">
-              Tip: You can change your goal later in settings.
-            </p>
-            <button
-              onClick={handleContinue}
-              disabled={!selectedGoal}
-              className={`bg-primary text-white text-label-md px-10 py-4 rounded-full tactile-button flex items-center gap-2 shadow-lg transition-all ${
-                selectedGoal
-                  ? 'hover:bg-primary-container hover:scale-105'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              Continue
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

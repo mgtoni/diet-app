@@ -12,7 +12,7 @@ export interface OnboardingState {
   
   // Metrics
   biologicalSex?: BiologicalSex;
-  dateOfBirth?: string;
+  age?: number;
   heightCm?: number;
   weightKg?: number;
   targetWeightKg?: number;
@@ -36,7 +36,6 @@ export interface OnboardingState {
   // Unit Preferences
   weightUnit?: 'kg' | 'lbs';
   heightUnit?: 'cm' | 'ft_in';
-  energyUnit?: 'kcal' | 'kJ';
 }
 
 export class OnboardingService {
@@ -48,15 +47,10 @@ export class OnboardingService {
       case 1: // Goal Selection
         return !!state.goal;
       case 2: // Body Metrics
-        return !!state.biologicalSex && !!state.dateOfBirth && !!state.heightCm && !!state.weightKg;
+        return !!state.biologicalSex && !!state.age && state.age >= 18 && !!state.heightCm && !!state.weightKg;
       case 3: // Activity
         return !!state.activityLevel && !!state.exerciseFrequency;
       case 4: // Diet & Conditions
-        // Usually these can be empty arrays or 'None'
-        return true;
-      case 5: // Units
-        return !!state.weightUnit && !!state.heightUnit && !!state.energyUnit;
-      case 6: // Upsell (Tasteful)
         return true;
       default:
         return false;

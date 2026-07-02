@@ -17,9 +17,8 @@ export default function OnboardingLayout({
   if (pathname.includes('/step-2')) currentStep = 2;
   else if (pathname.includes('/step-3')) currentStep = 3;
   else if (pathname.includes('/step-4')) currentStep = 4;
-  else if (pathname.includes('/step-5')) currentStep = 5;
 
-  const totalSteps = 5;
+  const totalSteps = 4;
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   return (
