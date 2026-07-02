@@ -1,56 +1,31 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'email' | 'otp'>('email');
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setStatus('loading');
     setError(null);
 
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+        },
       });
 
       if (error) throw error;
-      setStep('otp');
+      setStatus('sent');
     } catch (err: any) {
-      setError(err.message || 'Failed to send verification code.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email',
-      });
-
-      if (error) throw error;
-      
-      // Successfully authenticated
-      router.push('/onboarding');
-    } catch (err: any) {
-      setError(err.message || 'Invalid verification code.');
-    } finally {
-      setLoading(false);
+      setError(err.message || 'Failed to send magic link.');
+      setStatus('idle');
     }
   };
 
@@ -60,9 +35,9 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <h1 className="font-headline-lg text-ink-text mb-2">Create Account</h1>
           <p className="text-body-md text-on-surface-variant">
-            {step === 'email' 
-              ? 'Enter your email to get started with your personalized plan.' 
-              : `We sent a code to ${email}`}
+            {status === 'sent' 
+              ? 'Check your inbox for a magic link.' 
+              : 'Enter your email to get started with your personalized plan.'}
           </p>
         </div>
 
@@ -72,8 +47,26 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {step === 'email' ? (
-          <form onSubmit={handleSendOtp} className="space-y-6">
+        {status === 'sent' ? (
+          <div className="text-center space-y-6">
+            <div className="w-20 h-20 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-[40px]">mail</span>
+            </div>
+            <p className="text-body-lg text-ink-text">
+              We sent a magic link to <strong>{email}</strong>
+            </p>
+            <p className="text-body-md text-on-surface-variant">
+              Click the link in the email to sign in securely. You can close this tab.
+            </p>
+            <button
+              onClick={() => setStatus('idle')}
+              className="text-primary text-label-md hover:underline"
+            >
+              Try a different email
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSendMagicLink} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-label-md font-medium text-ink-text mb-2">
                 Email Address
@@ -91,48 +84,13 @@ export default function RegisterPage() {
             
             <button
               type="submit"
-              disabled={loading || !email}
+              disabled={status === 'loading' || !email}
               className={`w-full bg-primary text-white text-label-md px-6 py-4 rounded-full tactile-button flex items-center justify-center gap-2 shadow-lg transition-all ${
-                loading || !email ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-container hover:scale-[1.02]'
+                status === 'loading' || !email ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-container hover:scale-[1.02]'
               }`}
             >
-              {loading ? 'Sending...' : 'Continue'}
-              {!loading && <span className="material-symbols-outlined">arrow_forward</span>}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-6">
-            <div>
-              <label htmlFor="otp" className="block text-label-md font-medium text-ink-text mb-2">
-                Verification Code
-              </label>
-              <input
-                id="otp"
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
-                required
-                className="w-full px-4 py-3 rounded-xl border border-surface-variant bg-surface-container-low focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-center tracking-[0.5em] text-title-lg"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={loading || !otp}
-              className={`w-full bg-primary text-white text-label-md px-6 py-4 rounded-full tactile-button flex items-center justify-center gap-2 shadow-lg transition-all ${
-                loading || !otp ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-container hover:scale-[1.02]'
-              }`}
-            >
-              {loading ? 'Verifying...' : 'Verify & Continue'}
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setStep('email')}
-              className="w-full text-primary text-label-md text-center mt-4 hover:underline"
-            >
-              Change Email
+              {status === 'loading' ? 'Sending...' : 'Send Magic Link'}
+              {status !== 'loading' && <span className="material-symbols-outlined">auto_awesome</span>}
             </button>
           </form>
         )}
