@@ -6,12 +6,15 @@ We will build out the frontend for Phase 1 using the provided design system from
 
 > [!IMPORTANT]  
 > The design relies on a comprehensive, Material You-inspired color palette and specific typographic rules. We will migrate these configurations into Tailwind CSS v4 format (via `@theme` directives in `globals.css`) so they are globally available across the Next.js app.
+> **Decision:** Approved. Tailwind CSS v4 is already installed and `globals.css` is configured with the new `@theme` format without adding further complexity.
 
 ## Open Questions
 
 > [!NOTE]
 > 1. Should we mock the backend authentication/database layer for the UI development phase, or do you want me to wire the forms directly into Supabase immediately?
+>    **Decision:** Wire immediately.
 > 2. The `home_page.html` shows a sidebar for desktop and bottom nav for mobile. I will create a dedicated Layout component for this. Do you want this layout to apply to the entire app, excluding the Onboarding flow?
+>    **Decision:** Yes. The layout will apply to the `(app)` route group.
 
 ## Proposed Changes
 

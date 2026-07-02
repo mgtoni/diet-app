@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { TactileButton } from '@/components/ui/TactileButton';
+import { useOnboarding } from '@/context/OnboardingContext';
+import { PrimaryGoal } from '@diet-app/core/src/nutritionEngine';
 
 const GOALS = [
   {
@@ -55,13 +58,13 @@ const GOALS = [
 ];
 
 export default function OnboardingGoalPage() {
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const router = useRouter();
+  const { state, updateState } = useOnboarding();
+  const selectedGoal = state.goal;
 
   const handleContinue = () => {
     if (selectedGoal) {
-      // Navigate to the next step, for example:
-      // router.push('/onboarding/body-metrics');
-      console.log('Selected Goal:', selectedGoal);
+      router.push('/onboarding/step-2');
     }
   };
 
@@ -86,7 +89,7 @@ export default function OnboardingGoalPage() {
             iconColorClass={goal.iconColorClass}
             hoverColorClass={goal.hoverColorClass}
             selected={selectedGoal === goal.id}
-            onClick={() => setSelectedGoal(goal.id)}
+            onClick={() => updateState({ goal: goal.id as PrimaryGoal })}
           />
         ))}
       </div>
