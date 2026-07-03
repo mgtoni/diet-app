@@ -1,4 +1,4 @@
-import { Food } from './FoodService';
+import { Food } from './FoodTypes';
 
 export interface DiaryEntry {
   id?: string;

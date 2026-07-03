@@ -1,5 +1,5 @@
 import { Meilisearch } from 'meilisearch';
-import { Food, FoodDataAdapter } from './FoodService';
+import { Food, FoodDataAdapter } from './FoodTypes';
 
 export class MeilisearchAdapter implements FoodDataAdapter {
   private client: Meilisearch | null = null;
