@@ -6,11 +6,11 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "meilisearch": "^0.58.0"
-  },
   "devDependencies": {
     "@types/node": "^26.1.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "meilisearch": "^0.58.0"
   }
 }
