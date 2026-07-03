@@ -29,3 +29,6 @@ jobs:
 
     - name: Build Web App
       run: npm run build --workspace=apps/web
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: "https://dummy-for-ci.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key-for-ci"
