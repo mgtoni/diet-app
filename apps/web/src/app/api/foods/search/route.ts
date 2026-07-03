@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { FoodService } from 'core';
+import { FoodService } from '@diet-app/core';
 
 const foodService = new FoodService();
 

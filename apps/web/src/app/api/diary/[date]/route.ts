@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { date: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
-    const date = params.date;
+    const { date } = await params;
     // TODO: Connect to Supabase to fetch diary entries for the specific date
     // const supabase = createRouteHandlerClient({ cookies });
     // const { data } = await supabase.from('diary_entries').select('*, diary_items(*)').eq('entry_date', date);
@@ -25,9 +25,9 @@ export async function GET(request: Request, { params }: { params: { date: string
   }
 }
 
-export async function POST(request: Request, { params }: { params: { date: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
-    const date = params.date;
+    const { date } = await params;
     const body = await request.json();
     // TODO: Connect to Supabase to insert a new diary item
 

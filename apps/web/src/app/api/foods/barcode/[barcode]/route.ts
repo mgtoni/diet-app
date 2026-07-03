@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { FoodService } from 'core';
+import { FoodService } from '@diet-app/core';
 
 const foodService = new FoodService();
 
-export async function GET(request: Request, { params }: { params: { barcode: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ barcode: string }> }) {
   try {
-    const barcode = params.barcode;
+    const { barcode } = await params;
     if (!barcode) {
       return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Missing barcode' } }, { status: 400 });
     }
