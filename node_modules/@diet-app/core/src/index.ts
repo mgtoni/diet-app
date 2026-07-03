@@ -1,6 +1,8 @@
 export * from './nutritionEngine';
 export * from './onboarding';
-export * from './services/FoodService';
-export * from './services/DiaryService';
 
-// BUST_CACHE: 1
+export { FoodService } from './services/FoodService';
+export type { Food, FoodDataAdapter } from './services/FoodService';
+
+export { DiaryService } from './services/DiaryService';
+export type { DiaryEntry, DiaryItem } from './services/DiaryService';
