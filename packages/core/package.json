@@ -6,7 +6,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "meilisearch": "^0.58.0"
+  },
   "devDependencies": {
     "typescript": "^5.0.0"
   }

@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "AI-powered nutrition platform",
 };
 
+import QueryProvider from '@/components/providers/QueryProvider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +34,11 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
     </html>
   );
 }
