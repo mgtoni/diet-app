@@ -1,8 +1,8 @@
-import { MeiliSearch } from 'meilisearch';
+import { Meilisearch } from 'meilisearch';
 import { Food, FoodDataAdapter } from './FoodService';
 
 export class MeilisearchAdapter implements FoodDataAdapter {
-  private client: MeiliSearch | null = null;
+  private client: Meilisearch | null = null;
   private indexName: string = 'foods';
 
   constructor() {
@@ -10,7 +10,7 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     const apiKey = process.env.MEILISEARCH_API_KEY;
 
     if (host) {
-      this.client = new MeiliSearch({
+      this.client = new Meilisearch({
         host,
         apiKey,
       });
