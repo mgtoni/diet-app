@@ -1,3 +1,5 @@
+import { MeilisearchAdapter } from './MeilisearchAdapter';
+
 export interface Food {
   id?: string;
   name: string;
@@ -67,8 +69,6 @@ export class OpenFoodFactsAdapter implements FoodDataAdapter {
     };
   }
 }
-
-import { MeilisearchAdapter } from './MeilisearchAdapter';
 
 export class FoodService {
   private adapters: FoodDataAdapter[];
