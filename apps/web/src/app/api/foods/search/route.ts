@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { FoodService } from '@diet-app/core';
 
-const foodService = new FoodService();
-
 export async function GET(request: Request) {
+  const foodService = new FoodService();
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');

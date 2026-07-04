@@ -67,9 +67,9 @@ export default function AppLayout({
           </nav>
           
           <div className="px-4 mt-auto space-y-4">
-            <button className="w-full text-on-secondary-container py-3 rounded-full font-bold transition-all bg-secondary-container shadow-md hover:bg-salmon-accent active:scale-95">
+            <Link href="/diary" className="w-full text-center block text-on-secondary-container py-3 rounded-full font-bold transition-all bg-secondary-container shadow-md hover:bg-salmon-accent active:scale-95">
               Log Meal
-            </button>
+            </Link>
             <div className="pt-4 border-t border-outline-variant/30 space-y-2">
               <Link href="#" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md">
                 <span className="material-symbols-outlined">settings</span> Settings

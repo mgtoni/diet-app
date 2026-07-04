@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { FoodService } from '@diet-app/core';
 
-const foodService = new FoodService();
-
 export async function GET(request: Request, { params }: { params: Promise<{ barcode: string }> }) {
+  const foodService = new FoodService();
   try {
     const { barcode } = await params;
     if (!barcode) {

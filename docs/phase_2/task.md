@@ -1,0 +1,21 @@
+# Phase 2: Food Data and Diary
+
+- `[/]` **1. Database Migrations**
+  - `[x]` Create `20260703000000_food_diary_schema.sql` with food, diary, recipes, tracking tables, and RLS.
+  - `[ ]` Apply migration to local Supabase.
+- `[/]` **2. Core Services (Backend/Frontend logic)**
+  - `[x]` Create `packages/core/src/services/FoodService.ts` (with Open Food Facts adapter).
+  - `[x]` Create `packages/core/src/services/DiaryService.ts`.
+- `[/]` **3. Next.js API Routes**
+  - `[x]` `GET /api/foods/search`
+  - `[x]` `GET /api/foods/barcode/[barcode]`
+  - `[x]` `GET / POST / PUT / DELETE /api/diary/[date]`
+  - `[x]` `GET /api/dashboard`
+- `[/]` **4. Frontend UI Components**
+  - `[x]` `Dashboard` component (Nutrition score, macros, progress).
+  - `[x]` `Food Diary` component (Meal slots).
+  - `[x]` `Food Search` component (Search bar, quick add).
+  - `[x]` `Barcode Scanner` component.
+- `[x]` **5. Verification**
+  - `[x]` Write and run tests.
+  - `[x]` Create Walkthrough.

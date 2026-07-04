@@ -19,3 +19,14 @@ The `vercel-prebuild.js` script checks for `process.env.VERCEL` and forcefully i
 When importing local packages (e.g. `@diet-app/core`) into a Next.js app running Turbopack, you will encounter `Unknown module type` build errors because Next.js attempts to resolve the raw `.ts` files inside `node_modules` without passing them through the typescript loader.
 **The Fix:** You MUST add the local package to the `transpilePackages` array in `next.config.ts`.
 Requirement check: Always verify `transpilePackages` includes any new workspace packages before pushing to GitHub.
+
+# Pre-deployment / Pre-commit Checks
+**CRITICAL RULE: Always verify build locally before committing**
+Before committing and pushing code to GitHub (which triggers Vercel deployments), you MUST verify that the app builds successfully locally to catch module resolution or monorepo dependency issues.
+**The Fix:**
+1. **Workspace Dependencies**: Check that any local workspace packages (like `@diet-app/core`) used by an app (like `apps/web`) are explicitly listed in that app's `package.json` `dependencies`. If they are missing, Vercel's isolated build will fail to link them.
+2. **Local Build Test**: Run `npm run build` locally inside the relevant app directory (e.g. `cd apps/web` then run with dummy variables like `$env:NEXT_PUBLIC_SUPABASE_URL="https://example.supabase.co"; $env:NEXT_PUBLIC_SUPABASE_ANON_KEY="dummy_key"; npm run build`) to confirm the build succeeds without module resolution errors before making a commit.
+
+# Documentation and Artifacts
+**CRITICAL RULE: Save Artifacts in Docs Folder**
+All artifacts (e.g. implementation plans, tasks, walkthroughs, setup docs) MUST be explicitly saved in the `docs` folder of the workspace, categorized under the respective phase (e.g. `docs/phase_2`). Do not leave them floating in the default conversation brain directory unless they are temporary scratch files.
