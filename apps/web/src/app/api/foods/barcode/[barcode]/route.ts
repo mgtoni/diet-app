@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { FoodService } from '@diet-app/core';
+import { supabase } from '@/utils/supabase/client';
 
 export async function GET(request: Request, { params }: { params: Promise<{ barcode: string }> }) {
-  const foodService = new FoodService();
+  const foodService = new FoodService(supabase);
   try {
     const { barcode } = await params;
     if (!barcode) {

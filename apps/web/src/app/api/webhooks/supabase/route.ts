@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { MeiliSearch } from 'meilisearch';
+import { Meilisearch } from 'meilisearch';
 
-const meili = new MeiliSearch({
+const meili = new Meilisearch({
   host: process.env.MEILISEARCH_HOST || 'http://localhost:7700',
   apiKey: process.env.MEILISEARCH_ADMIN_KEY,
 });
