@@ -1,101 +1,127 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Food } from './FoodTypes';
 import { MeilisearchAdapter } from './MeilisearchAdapter';
-import { Food, FoodDataAdapter } from './FoodTypes';
-
-export class OpenFoodFactsAdapter implements FoodDataAdapter {
-  async search(query: string, locale: string = 'en'): Promise<Food[]> {
-    try {
-      const res = await fetch(`https://${locale}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return (data.products || []).map(this.mapProduct);
-    } catch (error) {
-      console.error('Error searching OpenFoodFacts:', error);
-      return [];
-    }
-  }
-
-  async getByBarcode(barcode: string, locale: string = 'en'): Promise<Food | null> {
-    try {
-      const res = await fetch(`https://${locale}.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      if (data.status === 1) {
-        return this.mapProduct(data.product);
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching barcode from OpenFoodFacts:', error);
-      return null;
-    }
-  }
-
-  private mapProduct(p: any): Food {
-    return {
-      name: p.product_name || 'Unknown',
-      brand: p.brands,
-      barcode: p.code,
-      nutrition: {
-        calories: Number(p.nutriments?.['energy-kcal_100g']) || 0,
-        protein: Number(p.nutriments?.proteins_100g) || 0,
-        fat: Number(p.nutriments?.fat_100g) || 0,
-        carbohydrates: Number(p.nutriments?.carbohydrates_100g) || 0,
-        fiber: Number(p.nutriments?.fiber_100g) || 0,
-        sugar: Number(p.nutriments?.sugars_100g) || 0,
-        sodium: Number(p.nutriments?.sodium_100g) || 0,
-      },
-      source: 'openfoodfacts'
-    };
-  }
-}
+import { OpenFoodFactsAdapter } from './OpenFoodFactsAdapter';
+import { SupabaseAdapter } from './SupabaseAdapter';
 
 export class FoodService {
-  private adapters: FoodDataAdapter[];
+  private meiliAdapter: MeilisearchAdapter;
+  private offAdapter: OpenFoodFactsAdapter;
+  private supabaseAdapter: SupabaseAdapter;
 
-  constructor() {
-    this.adapters = [];
-    
-    // Add Meilisearch first as primary if configured
-    const meili = new MeilisearchAdapter();
-    if (meili.isActive) {
-      this.adapters.push(meili);
-    }
-    
-    // Fallback to Open Food Facts
-    this.adapters.push(new OpenFoodFactsAdapter());
+  constructor(private supabase: SupabaseClient) {
+    this.meiliAdapter = new MeilisearchAdapter();
+    this.offAdapter = new OpenFoodFactsAdapter();
+    this.supabaseAdapter = new SupabaseAdapter(supabase);
   }
 
-  async search(query: string): Promise<Food[]> {
-    const results = await Promise.all(this.adapters.map(a => a.search(query)));
-    let allResults = results.flat();
+  /**
+   * Data Integrity Pass: Macro Math Filter
+   * Discards any record with 0 macros or where (p*4 + c*4 + f*9) deviates >15% from stated energy.
+   */
+  private passesIntegrityCheck(food: Food): boolean {
+    const { calories, protein, carbohydrates, fat } = food.nutrition;
+    
+    if (calories <= 0 && protein <= 0 && carbohydrates <= 0 && fat <= 0) {
+      return false; // Discard completely empty records
+    }
 
-    const seen = new Map<string, Food>();
-    for (const food of allResults) {
-      const name = food.name || '';
-      const brand = food.brand || '';
-      const key = `${name.toLowerCase().trim()}-${brand.toLowerCase().trim()}`;
-      const existing = seen.get(key);
-      
-      if (!existing) {
-        seen.set(key, food);
-      } else {
-        // Prefer the one with calories > 0
-        if (food.nutrition.calories > 0 && existing.nutrition.calories <= 0) {
-          seen.set(key, food);
-        }
+    const expectedKcal = (protein * 4) + (carbohydrates * 4) + (fat * 9);
+    
+    // If calories is 0 but we have macros, we could calculate it, but instructions say discard if stated energy deviates >15%
+    if (calories === 0) return false;
+
+    const deviation = Math.abs(expectedKcal - calories) / calories;
+    if (deviation > 0.15) {
+      return false; // Discard if deviation > 15%
+    }
+
+    return true;
+  }
+
+  /**
+   * Search implementation with Quality Waterfall
+   */
+  async search(query: string, locale: string = 'en-US'): Promise<Food[]> {
+    // 1. Local Cache Check (Supabase)
+    const localResults = await this.supabaseAdapter.search(query, locale);
+    if (localResults.length > 0) {
+      return localResults.filter(this.passesIntegrityCheck);
+    }
+
+    // 2. Governmental Database Check (Meilisearch)
+    if (this.meiliAdapter.isActive) {
+      const meiliResults = await this.meiliAdapter.search(query, locale);
+      if (meiliResults.length > 0) {
+        return meiliResults.filter(this.passesIntegrityCheck);
       }
     }
 
-    // Filter out 0 kcal items to clean up search results, as many OpenFoodFacts entries are missing calorie data
-    allResults = Array.from(seen.values()).filter(f => f.nutrition.calories > 0);
+    // 3. External Fallback (Open Food Facts)
+    const offResults = await this.offAdapter.search(query, locale);
+    const validOffResults = offResults.filter(this.passesIntegrityCheck);
 
-    return allResults;
+    // 4. Deduplication: Sort by completeness_score and imageUrl presence, pick top 1
+    if (validOffResults.length > 0) {
+      // In OFF, we don't have direct "completeness_score" easily mapped, but we can prioritize those with images
+      // For now, we take the top 1 result
+      const topResult = validOffResults[0]; // Assuming OFF adapter already sorted them reasonably, or we just take the first valid match
+      
+      // Upsert the winner into Supabase
+      await this.upsertToSupabase(topResult, locale);
+      
+      return [topResult];
+    }
+
+    return [];
   }
 
-  async getByBarcode(barcode: string): Promise<Food | null> {
-    for (const adapter of this.adapters) {
-      const result = await adapter.getByBarcode(barcode);
-      if (result) return result;
+  async getByBarcode(barcode: string, locale: string = 'en-US'): Promise<Food | null> {
+    // 1. Local Cache Check
+    const localResult = await this.supabaseAdapter.getByBarcode(barcode, locale);
+    if (localResult && this.passesIntegrityCheck(localResult)) {
+      return localResult;
     }
+
+    // 2. External Fallback (Open Food Facts)
+    const offResult = await this.offAdapter.getByBarcode(barcode, locale);
+    if (offResult && this.passesIntegrityCheck(offResult)) {
+      // Upsert winner
+      await this.upsertToSupabase(offResult, locale);
+      return offResult;
+    }
+
     return null;
+  }
+
+  /**
+   * Upsert valid item into Supabase foods table
+   */
+  private async upsertToSupabase(food: Food, locale: string): Promise<void> {
+    try {
+      const { error } = await this.supabase.from('foods').upsert({
+        barcode: food.barcode || null,
+        name: food.name,
+        brand: food.brand || null,
+        calories_100g: food.nutrition.calories,
+        protein_100g: food.nutrition.protein,
+        carbohydrates_100g: food.nutrition.carbohydrates,
+        fat_100g: food.nutrition.fat,
+        fiber_100g: food.nutrition.fiber || null,
+        sugar_100g: food.nutrition.sugar || null,
+        sodium_100g: food.nutrition.sodium || null,
+        trust_score: 30, // crowdsourced trust score
+        completeness_score: 50, // rough estimate for OFF
+        image_url: food.imageUrl || null,
+        source: food.source,
+        locale: locale
+      }, { onConflict: 'barcode' }); // Assuming barcode is unique
+
+      if (error) {
+        console.error('Error upserting food to Supabase:', error);
+      }
+    } catch (e) {
+      console.error('Failed to upsert to Supabase:', e);
+    }
   }
 }

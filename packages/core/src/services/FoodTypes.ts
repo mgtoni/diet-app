@@ -14,6 +14,9 @@ export interface Food {
   };
   servingSizeGrams?: number;
   source: string;
+  imageUrl?: string;
+  trustScore?: number;
+  completenessScore?: number;
 }
 
 export interface FoodDataAdapter {
