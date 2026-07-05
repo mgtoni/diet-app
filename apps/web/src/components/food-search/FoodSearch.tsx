@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface FoodSearchProps {
   onAdd: (food: any, quantity: number) => void;
@@ -11,14 +11,18 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const fetchResults = async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
     try {
-      const res = await fetch(`/api/foods/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/foods/search?q=${encodeURIComponent(searchQuery)}`);
       const json = await res.json();
       if (json.success) {
         setResults(json.data);
@@ -28,6 +32,33 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (query.trim() === '') {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    debounceTimerRef.current = setTimeout(() => {
+      fetchResults(query);
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [query]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    fetchResults(query);
   };
 
   return (
@@ -67,7 +98,7 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
           <div key={idx} className="bg-gray-900 border border-gray-800 hover:border-emerald-500/50 rounded-2xl p-4 flex justify-between items-center transition-all group">
             <div>
               <div className="font-medium text-white">{food.name}</div>
-              <div className="text-sm text-gray-500">{food.brand || 'Generic'} • {food.nutrition.calories} kcal / 100g</div>
+              <div className="text-sm text-gray-500">{food.brand || 'Generic'} • {Math.round(food.nutrition.calories)} kcal / 100g</div>
             </div>
             <button 
               onClick={() => onAdd(food, 100)}

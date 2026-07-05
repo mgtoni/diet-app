@@ -66,7 +66,29 @@ export class FoodService {
 
   async search(query: string): Promise<Food[]> {
     const results = await Promise.all(this.adapters.map(a => a.search(query)));
-    return results.flat();
+    let allResults = results.flat();
+
+    const seen = new Map<string, Food>();
+    for (const food of allResults) {
+      const name = food.name || '';
+      const brand = food.brand || '';
+      const key = `${name.toLowerCase().trim()}-${brand.toLowerCase().trim()}`;
+      const existing = seen.get(key);
+      
+      if (!existing) {
+        seen.set(key, food);
+      } else {
+        // Prefer the one with calories > 0
+        if (food.nutrition.calories > 0 && existing.nutrition.calories <= 0) {
+          seen.set(key, food);
+        }
+      }
+    }
+
+    // Filter out 0 kcal items to clean up search results, as many OpenFoodFacts entries are missing calorie data
+    allResults = Array.from(seen.values()).filter(f => f.nutrition.calories > 0);
+
+    return allResults;
   }
 
   async getByBarcode(barcode: string): Promise<Food | null> {
