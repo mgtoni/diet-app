@@ -6,8 +6,8 @@ export class MeilisearchAdapter implements FoodDataAdapter {
   private indexName: string = 'foods';
 
   constructor() {
-    const host = process.env.MEILISEARCH_HOST;
-    const apiKey = process.env.MEILISEARCH_API_KEY;
+    const host = process.env['MEILISEARCH_HOST'];
+    const apiKey = process.env['MEILISEARCH_API_KEY'];
 
     if (host) {
       this.client = new Meilisearch({

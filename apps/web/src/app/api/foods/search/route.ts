@@ -3,6 +3,7 @@ import { FoodService } from '@diet-app/core';
 
 export async function GET(request: Request) {
   const foodService = new FoodService();
+
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
