@@ -27,10 +27,11 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     if (!this.client) return [];
     
     try {
+      const lang = locale.split('-')[0] || 'en';
       const index = this.client.index(this.indexName);
       const searchResult = await index.search(query, {
         limit: 20,
-        filter: [`locale = ${locale}`]
+        filter: [`locale = '${lang}'`]
       });
 
       return searchResult.hits.map(this.mapToFood);
@@ -47,7 +48,7 @@ export class MeilisearchAdapter implements FoodDataAdapter {
       const index = this.client.index(this.indexName);
       const searchResult = await index.search(barcode, {
         limit: 1,
-        filter: [`barcode = ${barcode}`]
+        filter: [`barcode = '${barcode}'`]
       });
 
       if (searchResult.hits.length > 0) {

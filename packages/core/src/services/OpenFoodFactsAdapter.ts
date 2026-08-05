@@ -3,10 +3,18 @@ import { Food, FoodDataAdapter } from './FoodTypes';
 export class OpenFoodFactsAdapter implements FoodDataAdapter {
   async search(query: string, locale: string = 'en'): Promise<Food[]> {
     try {
-      // The OFF API uses specific language subdomains
-      const language = locale.split('-')[0] || 'en';
-      const res = await fetch(`https://${language}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
-      if (!res.ok) return [];
+      // The OFF API uses specific language subdomains, but 'en' often returns 503, so use 'world' for English.
+      const langPrefix = locale.split('-')[0] || 'en';
+      const language = langPrefix === 'en' ? 'world' : langPrefix;
+      const res = await fetch(`https://${language}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`, {
+        headers: {
+          'User-Agent': 'DietApp/1.0 (Integration)'
+        }
+      });
+      if (!res.ok) {
+        console.error('OFF API error:', res.status, res.statusText);
+        return [];
+      }
       const data = await res.json();
       return (data.products || []).map(this.mapProduct);
     } catch (error) {
@@ -17,8 +25,13 @@ export class OpenFoodFactsAdapter implements FoodDataAdapter {
 
   async getByBarcode(barcode: string, locale: string = 'en'): Promise<Food | null> {
     try {
-      const language = locale.split('-')[0] || 'en';
-      const res = await fetch(`https://${language}.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const langPrefix = locale.split('-')[0] || 'en';
+      const language = langPrefix === 'en' ? 'world' : langPrefix;
+      const res = await fetch(`https://${language}.openfoodfacts.org/api/v0/product/${barcode}.json`, {
+        headers: {
+          'User-Agent': 'DietApp/1.0 (Integration)'
+        }
+      });
       if (!res.ok) return null;
       const data = await res.json();
       if (data.status === 1) {
