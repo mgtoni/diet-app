@@ -39,7 +39,8 @@ export class FoodService {
     return true;
   }
 
-  private isUuid(id: string): boolean {
+  private isUuid(id?: string): boolean {
+    if (!id) return false;
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   }
 
