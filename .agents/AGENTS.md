@@ -30,3 +30,9 @@ Before committing and pushing code to GitHub (which triggers Vercel deployments)
 # Documentation and Artifacts
 **CRITICAL RULE: Save Artifacts in Docs Folder**
 All artifacts (e.g. implementation plans, tasks, walkthroughs, setup docs) MUST be explicitly saved in the `docs` folder of the workspace, categorized under the respective phase (e.g. `docs/phase_2`). Do not leave them floating in the default conversation brain directory unless they are temporary scratch files.
+
+**CRITICAL RULE: Always Check Docs and GEMINI.md First**
+When starting a new conversation or task, you MUST first review the `docs` folder and the `GEMINI.md` file in the workspace root for any existing context, requirements, architectural decisions, and previous learnings. This ensures you do not miss crucial project-specific information.
+
+**CRITICAL RULE: CHANGELOG Tracking**
+All AI Agents MUST review `docs/CHANGELOG.md` at the start of a session to understand completed milestones, and MUST update it at the end of a session if a significant milestone or architectural change is achieved.
