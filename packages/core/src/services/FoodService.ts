@@ -68,9 +68,9 @@ export class FoodService {
       const topResult = validOffResults[0]; // Assuming OFF adapter already sorted them reasonably, or we just take the first valid match
       
       // Upsert the winner into Supabase
-      await this.upsertToSupabase(topResult, locale);
+      const updatedFood = await this.upsertToSupabase(topResult, locale);
       
-      return [topResult];
+      return [updatedFood];
     }
 
     return [];
@@ -87,8 +87,8 @@ export class FoodService {
     const offResult = await this.offAdapter.getByBarcode(barcode, locale);
     if (offResult && this.passesIntegrityCheck(offResult)) {
       // Upsert winner
-      await this.upsertToSupabase(offResult, locale);
-      return offResult;
+      const updatedFood = await this.upsertToSupabase(offResult, locale);
+      return updatedFood;
     }
 
     return null;
@@ -97,9 +97,9 @@ export class FoodService {
   /**
    * Upsert valid item into Supabase foods table
    */
-  private async upsertToSupabase(food: Food, locale: string): Promise<void> {
+  private async upsertToSupabase(food: Food, locale: string): Promise<Food> {
     try {
-      const { error } = await this.supabase.from('foods').upsert({
+      const { data, error } = await this.supabase.from('foods').upsert({
         barcode: food.barcode || null,
         name: food.name,
         brand: food.brand || null,
@@ -115,13 +115,16 @@ export class FoodService {
         image_url: food.imageUrl || null,
         source: food.source,
         locale: locale
-      }, { onConflict: 'barcode' }); // Assuming barcode is unique
+      }, { onConflict: 'barcode' }).select('id').single();
 
       if (error) {
         console.error('Error upserting food to Supabase:', error);
+      } else if (data) {
+        food.id = data.id;
       }
     } catch (e) {
       console.error('Failed to upsert to Supabase:', e);
     }
+    return food;
   }
 }

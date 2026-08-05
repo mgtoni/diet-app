@@ -17,14 +17,21 @@ export default function DiaryPage() {
   const [loading, setLoading] = useState(true);
   const [showSearch, setShowSearch] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchDiaryData = async () => {
     setLoading(true);
-    fetch(`/api/diary/${date}`)
-      .then(res => res.json())
-      .then(res => {
-        setDiaryData(res.data);
-        setLoading(false);
-      });
+    try {
+      const res = await fetch(`/api/diary/${date}`);
+      const json = await res.json();
+      setDiaryData(json.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiaryData();
   }, [date]);
 
   const handleDateChange = (offset: number) => {
@@ -108,10 +115,37 @@ export default function DiaryPage() {
       {showSearch && (
         <FoodSearch 
           onClose={() => setShowSearch(null)} 
-          onAdd={(food, qty) => {
-            console.log('Added', food, qty, 'to slot', showSearch);
-            setShowSearch(null);
-            // Refresh data logic here
+          onAdd={async (food, qty) => {
+            try {
+              // Make sure to calculate snapshot per quantity
+              const ratio = qty / 100;
+              const snapshot = {
+                calories: Math.round(food.nutrition.calories * ratio),
+                protein: Math.round(food.nutrition.protein * ratio * 10) / 10,
+                carbohydrates: Math.round(food.nutrition.carbohydrates * ratio * 10) / 10,
+                fat: Math.round(food.nutrition.fat * ratio * 10) / 10,
+              };
+
+              const res = await fetch(`/api/diary/${date}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  foodId: food.id,
+                  mealSlot: showSearch,
+                  quantity: qty,
+                  nutritionSnapshot: snapshot
+                })
+              });
+              
+              if (res.ok) {
+                setShowSearch(null);
+                fetchDiaryData();
+              } else {
+                console.error('Failed to add food');
+              }
+            } catch (e) {
+              console.error(e);
+            }
           }} 
         />
       )}

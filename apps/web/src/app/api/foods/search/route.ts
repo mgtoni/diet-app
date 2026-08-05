@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { FoodService } from '@diet-app/core';
-import { supabase } from '@/utils/supabase/client';
+import { supabaseAdmin } from '@/utils/supabase/admin';
 
 function getLocaleFromRequest(request: Request): string {
   const acceptLanguage = request.headers.get('Accept-Language');
@@ -26,7 +26,7 @@ function getLocaleFromRequest(request: Request): string {
 
 export async function GET(request: Request) {
   // Initialize FoodService with the Next.js Supabase client
-  const foodService = new FoodService(supabase);
+  const foodService = new FoodService(supabaseAdmin);
 
   try {
     const { searchParams } = new URL(request.url);
