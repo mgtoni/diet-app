@@ -37,6 +37,8 @@ export class FoodService {
     }
 
     return true;
+  private isUuid(id: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   }
 
   /**
@@ -52,8 +54,18 @@ export class FoodService {
     // 2. Governmental Database Check (Meilisearch)
     if (this.meiliAdapter.isActive) {
       const meiliResults = await this.meiliAdapter.search(query, locale);
-      if (meiliResults.length > 0) {
-        return meiliResults.filter(this.passesIntegrityCheck);
+      const validMeiliResults = meiliResults.filter(this.passesIntegrityCheck);
+      if (validMeiliResults.length > 0) {
+        // Ensure they have valid UUIDs from Supabase
+        const updatedMeili = await Promise.all(
+          validMeiliResults.map(async (food) => {
+            if (!this.isUuid(food.id)) {
+              return await this.upsertToSupabase(food, locale);
+            }
+            return food;
+          })
+        );
+        return updatedMeili;
       }
     }
 
