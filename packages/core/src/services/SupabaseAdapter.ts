@@ -8,7 +8,7 @@ export class SupabaseAdapter implements FoodDataAdapter {
     try {
       const { data, error } = await this.supabase
         .from('foods')
-        .select('*')
+        .select('*, serving_sizes(id, serving_name, weight_g)')
         .ilike('name', `%${query}%`)
         .eq('locale', locale)
         .order('trust_score', { ascending: false })
@@ -31,7 +31,7 @@ export class SupabaseAdapter implements FoodDataAdapter {
     try {
       let query = this.supabase
         .from('foods')
-        .select('*')
+        .select('*, serving_sizes(id, serving_name, weight_g)')
         .eq('barcode', barcode);
 
       if (locale) {
@@ -69,7 +69,12 @@ export class SupabaseAdapter implements FoodDataAdapter {
       imageUrl: p.image_url,
       trustScore: p.trust_score,
       completenessScore: p.completeness_score,
-      source: p.source || 'supabase'
+      source: p.source || 'supabase',
+      servingSizes: p.serving_sizes?.map((s: any) => ({
+        id: s.id,
+        servingName: s.serving_name,
+        weightG: Number(s.weight_g)
+      })) || []
     };
   }
 }

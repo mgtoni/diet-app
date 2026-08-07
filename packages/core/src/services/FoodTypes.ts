@@ -13,6 +13,7 @@ export interface Food {
     sodium?: number;
   };
   servingSizeGrams?: number;
+  servingSizes?: { id: string; servingName: string; weightG: number }[];
   source: string; // Keep for backwards compatibility
   providerId?: 'USDA' | 'COFID' | 'CIQUAL' | 'BEDCA' | 'OFF';
   nameLocal?: string;

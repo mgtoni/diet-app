@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import DevBypassBanner from '@/components/DevBypassBanner';
 
 export default function AppLayout({
   children,
@@ -8,6 +9,7 @@ export default function AppLayout({
 }) {
   return (
     <div className="min-h-screen bg-cream-bg text-on-surface font-body-md overflow-x-hidden flex flex-col">
+      <DevBypassBanner />
       {/* Top Navigation Bar */}
       <nav className="bg-cream-bg shadow-sm sticky top-0 z-50 h-16 flex items-center shrink-0">
         <div className="flex justify-between items-center w-full px-container-padding max-w-[1200px] mx-auto">

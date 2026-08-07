@@ -86,7 +86,9 @@ export default function DiaryPage() {
                         <li key={idx} className="flex justify-between items-center p-3 hover:bg-gray-800/50 rounded-2xl transition-colors group">
                           <div>
                             <div className="font-medium">{item.foodName}</div>
-                            <div className="text-xs text-gray-500">{item.quantityGrams}g</div>
+                            <div className="text-xs text-gray-500">
+                              {item.servingSizeId ? `${item.quantity} ${item.servingName || 'serving'}` : `${item.quantity}g`}
+                            </div>
                           </div>
                           <div className="text-right text-sm">
                             <div className="font-medium text-emerald-400">{item.nutritionSnapshot?.calories || 0} kcal</div>
@@ -115,10 +117,10 @@ export default function DiaryPage() {
       {showSearch && (
         <FoodSearch 
           onClose={() => setShowSearch(null)} 
-          onAdd={async (food, qty) => {
+          onAdd={async (food, inputQuantity, grams, servingSizeId) => {
             try {
               // Make sure to calculate snapshot per quantity
-              const ratio = qty / 100;
+              const ratio = grams / 100;
               const snapshot = {
                 calories: Math.round(food.nutrition.calories * ratio),
                 protein: Math.round(food.nutrition.protein * ratio * 10) / 10,
@@ -131,8 +133,10 @@ export default function DiaryPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   foodId: food.id,
+                  foodName: food.name,
                   mealSlot: showSearch,
-                  quantity: qty,
+                  quantity: inputQuantity,
+                  servingSizeId,
                   nutritionSnapshot: snapshot
                 })
               });

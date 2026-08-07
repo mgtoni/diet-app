@@ -1,16 +1,20 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 
+import { cookies } from 'next/headers';
+
 export async function GET(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
     const { date } = await params;
     
-    // Get the first user for development purposes
-    const { data: users, error: userError } = await supabaseAdmin.from('profiles').select('id').limit(1);
-    if (userError || !users || users.length === 0) {
-      return NextResponse.json({ success: false, error: { message: 'No users found. Please register first.' } }, { status: 400 });
+    // Get user from bypass cookie
+    const cookieStore = await cookies();
+    let userId = cookieStore.get('dev_user_id')?.value;
+    
+    if (!userId) {
+      // Fallback for development if cookie not set yet
+      userId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
     }
-    const userId = users[0].id;
 
     // Fetch diary entries and items
     const { data: entries, error } = await supabaseAdmin
@@ -22,6 +26,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
           id,
           food_id,
           quantity,
+          serving_size_id,
+          serving_sizes (
+            serving_name
+          ),
           nutrition_snapshot,
           foods (
             name,
@@ -45,8 +53,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
       items: entry.diary_items?.map((item: any) => ({
         id: item.id,
         foodId: item.food_id,
-        foodName: item.foods?.name,
-        quantityGrams: item.quantity,
+        foodName: item.food_name_logged || item.foods?.name,
+        quantity: item.quantity,
+        servingSizeId: item.serving_size_id,
+        servingName: item.serving_sizes?.serving_name,
         nutritionSnapshot: item.nutrition_snapshot
       })) || []
     })) || [];
@@ -61,18 +71,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
 export async function POST(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
     const { date } = await params;
-    const { foodId, mealSlot, quantity, nutritionSnapshot } = await request.json();
+    const { foodId, foodName, mealSlot, quantity, servingSizeId, nutritionSnapshot } = await request.json();
 
     if (!foodId || !mealSlot || !quantity) {
       return NextResponse.json({ success: false, error: { message: 'Missing required fields' } }, { status: 400 });
     }
 
-    // Get the first user for development purposes
-    const { data: users, error: userError } = await supabaseAdmin.from('profiles').select('id').limit(1);
-    if (userError || !users || users.length === 0) {
-      return NextResponse.json({ success: false, error: { message: 'No users found. Please register first.' } }, { status: 400 });
+    // Get user from bypass cookie
+    const cookieStore = await cookies();
+    let userId = cookieStore.get('dev_user_id')?.value;
+    
+    if (!userId) {
+      // Fallback
+      userId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
     }
-    const userId = users[0].id;
 
     // 1. Get or create diary_entry
     let { data: entry, error: entryError } = await supabaseAdmin
@@ -100,7 +112,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ dat
       .insert({
         diary_entry_id: entry!.id,
         food_id: foodId,
+        food_name_logged: foodName,
         quantity: quantity,
+        serving_size_id: servingSizeId || null,
         nutrition_snapshot: nutritionSnapshot
       })
       .select()
