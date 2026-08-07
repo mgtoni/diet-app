@@ -58,6 +58,17 @@ async function run() {
         continue;
       }
 
+      // Extract macro/micro nutrients
+      const calories = product.nutriments['energy-kcal_100g'] || 0;
+      const sugar = product.nutriments.sugars_100g || 0;
+      const fat = product.nutriments.fat_100g || 0;
+
+      // Filter out invalid or zero-only entries
+      if (calories === 0 && sugar === 0 && fat === 0) {
+        skipped++;
+        continue;
+      }
+
       // Prepare the document to match MeilisearchAdapter's Food model
       const foodDocument = {
         // Meilisearch requires an alphanumeric ID
@@ -65,13 +76,33 @@ async function run() {
         name: product.product_name,
         brand: product.brands || '',
         barcode: product.code || '',
-        calories: product.nutriments['energy-kcal_100g'] || 0,
+        calories: calories,
         protein: product.nutriments.proteins_100g || 0,
-        fat: product.nutriments.fat_100g || 0,
+        fat: fat,
         carbohydrates: product.nutriments.carbohydrates_100g || 0,
         fiber: product.nutriments.fiber_100g || 0,
-        sugar: product.nutriments.sugars_100g || 0,
+        sugar: sugar,
         sodium: product.nutriments.sodium_100g || 0,
+        saturatedFat: product.nutriments['saturated-fat_100g'] || 0,
+        monounsaturatedFat: product.nutriments['monounsaturated-fat_100g'] || 0,
+        polyunsaturatedFat: product.nutriments['polyunsaturated-fat_100g'] || 0,
+        vitaminA: product.nutriments['vitamin-a_100g'] || 0,
+        vitaminB1: product.nutriments['vitamin-b1_100g'] || 0,
+        vitaminB2: product.nutriments['vitamin-b2_100g'] || 0,
+        vitaminB3: product.nutriments['vitamin-pp_100g'] || 0,
+        vitaminB6: product.nutriments['vitamin-b6_100g'] || 0,
+        vitaminB9: product.nutriments['vitamin-b9_100g'] || 0,
+        vitaminB12: product.nutriments['vitamin-b12_100g'] || 0,
+        vitaminC: product.nutriments['vitamin-c_100g'] || 0,
+        vitaminD: product.nutriments['vitamin-d_100g'] || 0,
+        vitaminE: product.nutriments['vitamin-e_100g'] || 0,
+        vitaminK: product.nutriments['vitamin-k_100g'] || 0,
+        calcium: product.nutriments.calcium_100g || 0,
+        iron: product.nutriments.iron_100g || 0,
+        magnesium: product.nutriments.magnesium_100g || 0,
+        phosphorus: product.nutriments.phosphorus_100g || 0,
+        potassium: product.nutriments.potassium_100g || 0,
+        zinc: product.nutriments.zinc_100g || 0,
         locale: product.lang || 'en'
       };
 
