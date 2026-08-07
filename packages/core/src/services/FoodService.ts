@@ -32,7 +32,7 @@ export class FoodService {
     
     // Zero-calorie items (like diet soda)
     if (calories === 0 && expectedKcal === 0) {
-      return true;
+      return false; // User requested to completely exclude all such results
     }
 
     if (calories === 0 && expectedKcal > 0) {
