@@ -62,8 +62,9 @@ export class FoodService {
   async search(query: string, locale: string = 'en-US'): Promise<Food[]> {
     // 1. Local Cache Check (Supabase)
     const localResults = await this.supabaseAdapter.search(query, locale);
-    if (localResults.length > 0) {
-      return localResults.filter(this.passesIntegrityCheck);
+    const validLocalResults = localResults.filter((f) => this.passesIntegrityCheck(f));
+    if (validLocalResults.length > 0) {
+      return validLocalResults;
     }
 
     // 2. Governmental Database Check (Meilisearch)
