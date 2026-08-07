@@ -6,7 +6,7 @@ export class OpenFoodFactsAdapter implements FoodDataAdapter {
       // The OFF API uses specific language subdomains, but 'en' often returns 503, so use 'world' for English.
       const langPrefix = locale.split('-')[0] || 'en';
       const language = langPrefix === 'en' ? 'world' : langPrefix;
-      const res = await fetch(`https://${language}.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`, {
+      const res = await fetch(`https://${language}.openfoodfacts.net/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`, {
         headers: {
           'User-Agent': 'DietApp/1.0 (Integration)'
         }
@@ -27,7 +27,7 @@ export class OpenFoodFactsAdapter implements FoodDataAdapter {
     try {
       const langPrefix = locale.split('-')[0] || 'en';
       const language = langPrefix === 'en' ? 'world' : langPrefix;
-      const res = await fetch(`https://${language}.openfoodfacts.org/api/v0/product/${barcode}.json`, {
+      const res = await fetch(`https://${language}.openfoodfacts.net/api/v0/product/${barcode}.json`, {
         headers: {
           'User-Agent': 'DietApp/1.0 (Integration)'
         }

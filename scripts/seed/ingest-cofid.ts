@@ -38,16 +38,24 @@ async function ingestCoFID() {
     const carbs = row['Carbohydrate (g)'] || row['Carbohydrate g'] || 0;
     const fat = row['Fat (g)'] || row['Total Fat (g)'] || row['Fat g'] || 0;
 
+    const parseNumber = (val: any) => {
+      if (typeof val === 'number') return val;
+      if (!val) return 0;
+      let s = String(val).toLowerCase().replace(',', '.').replace(/[^\d.-]/g, '').trim();
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    };
+
     const mappedFood = {
       provider_id: 'COFID',
       barcode: null,
       name: name,
       name_local: name,
       locale: 'en-GB',
-      calories_100g: Number(kcal),
-      protein_100g: Number(protein),
-      carbohydrates_100g: Number(carbs),
-      fat_100g: Number(fat),
+      calories_100g: parseNumber(kcal),
+      protein_100g: parseNumber(protein),
+      carbohydrates_100g: parseNumber(carbs),
+      fat_100g: parseNumber(fat),
       trust_score: 100,
     };
 
@@ -55,7 +63,7 @@ async function ingestCoFID() {
     count++;
 
     if (batch.length >= BATCH_SIZE) {
-      const { error } = await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+      const { error } = await supabase.from('foods').insert(batch);
       if (error) console.error('Error inserting batch:', error);
       else process.stdout.write(`\rInserted ${count} foods...`);
       batch = [];
@@ -63,7 +71,7 @@ async function ingestCoFID() {
   }
 
   if (batch.length > 0) {
-    await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+    await supabase.from('foods').insert(batch);
     console.log(`\nInserted final ${batch.length} foods.`);
   }
 

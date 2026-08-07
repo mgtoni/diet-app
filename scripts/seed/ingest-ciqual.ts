@@ -69,7 +69,7 @@ async function ingestCIQUAL() {
     count++;
 
     if (batch.length >= BATCH_SIZE) {
-      const { error } = await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+      const { error } = await supabase.from('foods').insert(batch);
       if (error) console.error('Error inserting batch:', error);
       else process.stdout.write(`\rInserted ${count} foods...`);
       batch = [];
@@ -77,7 +77,7 @@ async function ingestCIQUAL() {
   }
 
   if (batch.length > 0) {
-    await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+    await supabase.from('foods').insert(batch);
     console.log(`\nInserted final ${batch.length} foods.`);
   }
 

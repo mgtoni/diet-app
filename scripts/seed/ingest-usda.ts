@@ -58,6 +58,14 @@ async function ingestUSDA() {
   let count = 0;
 
   console.log('Starting ingestion...');
+  
+  const parseNumber = (val: any) => {
+    if (typeof val === 'number') return isNaN(val) ? 0 : val;
+    if (!val) return 0;
+    const n = parseFloat(String(val));
+    return isNaN(n) ? 0 : n;
+  };
+
   for (const food of foods) {
     const n = nutrientMap.get(food.fdc_id) || {};
     
@@ -67,18 +75,18 @@ async function ingestUSDA() {
       name: food.description,
       name_local: food.description,
       locale: 'en-US',
-      calories_100g: n[kcalId] || 0,
-      protein_100g: n[proteinId] || 0,
-      carbohydrates_100g: n[carbId] || 0,
-      fat_100g: n[fatId] || 0,
-      trust_score: 100,
+      calories_100g: parseNumber(n[kcalId]),
+      protein_100g: parseNumber(n[proteinId]),
+      carbohydrates_100g: parseNumber(n[carbId]),
+      fat_100g: parseNumber(n[fatId]),
+      trust_score: 90, // SR Legacy gets 90 to rank below Foundation (100)
     };
 
     batch.push(mappedFood);
     count++;
 
     if (batch.length >= BATCH_SIZE) {
-      const { error } = await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+      const { error } = await supabase.from('foods').insert(batch);
       if (error) console.error('Error inserting batch:', error);
       else process.stdout.write(`\rInserted ${count} foods...`);
       batch = [];
@@ -86,7 +94,7 @@ async function ingestUSDA() {
   }
 
   if (batch.length > 0) {
-    await supabase.from('foods').upsert(batch, { onConflict: 'name', ignoreDuplicates: true });
+    await supabase.from('foods').insert(batch);
     console.log(`\nInserted final ${batch.length} foods.`);
   }
 
