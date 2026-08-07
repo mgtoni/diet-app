@@ -22,14 +22,26 @@ export class FoodService {
   private passesIntegrityCheck(food: Food): boolean {
     const { calories, protein, carbohydrates, fat } = food.nutrition;
     
-    if (calories <= 0 && protein <= 0 && carbohydrates <= 0 && fat <= 0) {
-      return false; // Discard completely empty records
+    // Step 1: The Completeness Filter
+    if (calories == null || protein == null || carbohydrates == null || fat == null) {
+      return false; // Discard completely missing records
     }
 
+    // Step 2: The Macro Math Integrity Filter
     const expectedKcal = (protein * 4) + (carbohydrates * 4) + (fat * 9);
     
-    // If calories is 0 but we have macros, we could calculate it, but instructions say discard if stated energy deviates >15%
-    if (calories === 0) return false;
+    // Zero-calorie items (like diet soda)
+    if (calories === 0 && expectedKcal === 0) {
+      return true;
+    }
+
+    if (calories === 0 && expectedKcal > 0) {
+        return false;
+    }
+
+    if (calories > 0 && expectedKcal === 0) {
+        return false; // Calories stated but no macros to back it up
+    }
 
     const deviation = Math.abs(expectedKcal - calories) / calories;
     if (deviation > 0.15) {
@@ -57,13 +69,14 @@ export class FoodService {
     // 2. Governmental Database Check (Meilisearch)
     if (this.meiliAdapter.isActive) {
       const meiliResults = await this.meiliAdapter.search(query, locale);
-      const validMeiliResults = meiliResults.filter(this.passesIntegrityCheck);
+      const validMeiliResults = meiliResults.filter((f) => this.passesIntegrityCheck(f));
       if (validMeiliResults.length > 0) {
         // Ensure they have valid UUIDs from Supabase
         const updatedMeili = await Promise.all(
           validMeiliResults.map(async (food) => {
             if (!this.isUuid(food.id)) {
-              return await this.upsertToSupabase(food, locale);
+              // Note: provider is determined by the meili index or food source mapping
+              return await this.upsertToSupabase(food, locale, food.providerId || 'OFF');
             }
             return food;
           })
@@ -74,16 +87,28 @@ export class FoodService {
 
     // 3. External Fallback (Open Food Facts)
     const offResults = await this.offAdapter.search(query, locale);
-    const validOffResults = offResults.filter(this.passesIntegrityCheck);
+    const validOffResults = offResults.filter((f) => this.passesIntegrityCheck(f));
 
     // 4. Deduplication: Sort by completeness_score and imageUrl presence, pick top 1
     if (validOffResults.length > 0) {
-      // In OFF, we don't have direct "completeness_score" easily mapped, but we can prioritize those with images
-      // For now, we take the top 1 result
-      const topResult = validOffResults[0]; // Assuming OFF adapter already sorted them reasonably, or we just take the first valid match
+      validOffResults.sort((a, b) => {
+        // Prioritize items with image URL
+        const aHasImage = a.imageUrl ? 1 : 0;
+        const bHasImage = b.imageUrl ? 1 : 0;
+        if (aHasImage !== bHasImage) {
+          return bHasImage - aHasImage;
+        }
+        
+        // Secondary priority: completeness_score
+        const scoreA = a.completenessScore || 0;
+        const scoreB = b.completenessScore || 0;
+        return scoreB - scoreA;
+      });
+
+      const topResult = validOffResults[0]; 
       
       // Upsert the winner into Supabase
-      const updatedFood = await this.upsertToSupabase(topResult, locale);
+      const updatedFood = await this.upsertToSupabase(topResult, locale, 'OFF');
       
       return [updatedFood];
     }
@@ -102,7 +127,7 @@ export class FoodService {
     const offResult = await this.offAdapter.getByBarcode(barcode, locale);
     if (offResult && this.passesIntegrityCheck(offResult)) {
       // Upsert winner
-      const updatedFood = await this.upsertToSupabase(offResult, locale);
+      const updatedFood = await this.upsertToSupabase(offResult, locale, 'OFF');
       return updatedFood;
     }
 
@@ -112,11 +137,12 @@ export class FoodService {
   /**
    * Upsert valid item into Supabase foods table
    */
-  private async upsertToSupabase(food: Food, locale: string): Promise<Food> {
+  private async upsertToSupabase(food: Food, locale: string, providerId: 'USDA' | 'COFID' | 'CIQUAL' | 'BEDCA' | 'OFF' = 'OFF'): Promise<Food> {
     try {
       const { data, error } = await this.supabase.from('foods').upsert({
         barcode: food.barcode || null,
         name: food.name,
+        name_local: food.nameLocal || food.name,
         brand: food.brand || null,
         calories_100g: food.nutrition.calories,
         protein_100g: food.nutrition.protein,
@@ -125,10 +151,11 @@ export class FoodService {
         fiber_100g: food.nutrition.fiber || null,
         sugar_100g: food.nutrition.sugar || null,
         sodium_100g: food.nutrition.sodium || null,
-        trust_score: 30, // crowdsourced trust score
-        completeness_score: 50, // rough estimate for OFF
+        trust_score: providerId === 'OFF' ? 30 : 100, // crowdsourced vs official
+        completeness_score: food.completenessScore || 50,
         image_url: food.imageUrl || null,
-        source: food.source,
+        provider_id: providerId,
+        preparation_state: food.preparationState || null,
         locale: locale
       }, { onConflict: 'barcode' }).select('id').single();
 
