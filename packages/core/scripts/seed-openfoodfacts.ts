@@ -78,8 +78,9 @@ async function run() {
         continue;
       }
 
-      const isOfficial = (product.creator && (product.creator.includes('usda') || product.creator.includes('ciqual'))) || 
-                         (product.data_sources_tags && Array.isArray(product.data_sources_tags) && product.data_sources_tags.some((t: string) => t.includes('usda') || t.includes('ciqual')));
+      const officialKeywords = ['usda', 'ciqual', 'mccance', 'widdowson'];
+      const isOfficial = (product.creator && officialKeywords.some(k => product.creator.includes(k))) || 
+                         (product.data_sources_tags && Array.isArray(product.data_sources_tags) && product.data_sources_tags.some((t: string) => officialKeywords.some(k => t.includes(k))));
 
       // Prepare the document to match MeilisearchAdapter's Food model
       const foodDocument = {
