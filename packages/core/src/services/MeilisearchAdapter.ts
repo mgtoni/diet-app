@@ -29,10 +29,20 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     try {
       const lang = locale.split('-')[0] || 'en';
       const index = this.client.index(this.indexName);
-      const searchResult = await index.search(query, {
+      
+      // First, try to find official results
+      let searchResult = await index.search(query, {
         limit: 20,
-        filter: [`locale = '${lang}'`]
+        filter: [`locale = '${lang}'`, `isOfficial = 1`]
       });
+
+      // If no official results are found, fallback to unofficial user data
+      if (searchResult.hits.length === 0) {
+        searchResult = await index.search(query, {
+          limit: 20,
+          filter: [`locale = '${lang}'`, `isOfficial = 0`]
+        });
+      }
 
       return searchResult.hits.map(this.mapToFood);
     } catch (error) {

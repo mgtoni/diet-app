@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 
 // Retrieve environment variables
-const MEILISEARCH_HOST = process.env.MEILISEARCH_HOST || 'http://localhost:7700';
+const MEILISEARCH_HOST = process.env.MEILISEARCH_HOST || 'http://87.106.61.27:7700';
 const MEILISEARCH_API_KEY = process.env.MEILISEARCH_API_KEY || '';
 const JSONL_FILE_PATH = process.argv[2];
 
@@ -32,7 +32,16 @@ async function run() {
   console.log('Configuring index settings...');
   await index.updateSettings({
     searchableAttributes: ['name', 'brand', 'barcode'],
-    filterableAttributes: ['locale', 'barcode'],
+    filterableAttributes: ['locale', 'barcode', 'isOfficial'],
+    rankingRules: [
+      'words',
+      'typo',
+      'isOfficial:desc',
+      'proximity',
+      'attribute',
+      'sort',
+      'exactness'
+    ]
   });
 
   const fileStream = fs.createReadStream(JSONL_FILE_PATH);
@@ -69,13 +78,17 @@ async function run() {
         continue;
       }
 
+      const isOfficial = (product.creator && (product.creator.includes('usda') || product.creator.includes('ciqual'))) || 
+                         (product.data_sources_tags && Array.isArray(product.data_sources_tags) && product.data_sources_tags.some((t: string) => t.includes('usda') || t.includes('ciqual')));
+
       // Prepare the document to match MeilisearchAdapter's Food model
       const foodDocument = {
         // Meilisearch requires an alphanumeric ID
-        id: (product._id || product.code || '').replace(/[^a-zA-Z0-9-_]/g, ''), 
+        id: (product._id || product.code || '').replace(/[^a-zA-Z0-9-_]/g, ''),
         name: product.product_name,
         brand: product.brands || '',
         barcode: product.code || '',
+        isOfficial: isOfficial ? 1 : 0,
         calories: calories,
         protein: product.nutriments.proteins_100g || 0,
         fat: fat,
