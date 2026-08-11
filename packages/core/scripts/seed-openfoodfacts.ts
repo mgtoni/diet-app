@@ -32,7 +32,7 @@ async function run() {
   console.log('Configuring index settings...');
   await index.updateSettings({
     searchableAttributes: ['name', 'brand', 'barcode'],
-    filterableAttributes: ['locale', 'barcode', 'isOfficial', 'countries'],
+    filterableAttributes: ['locale', 'barcode', 'isOfficial', 'countries', 'brand'],
     rankingRules: [
       'isOfficial:desc',
       'completeness:desc',

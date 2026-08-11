@@ -7,6 +7,7 @@ export class OpenFoodFactsAdapter implements FoodDataAdapter {
       const langPrefix = locale.split('-')[0] || 'en';
       const language = langPrefix === 'en' ? 'world' : langPrefix;
       const res = await fetch(`https://${language}.openfoodfacts.net/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`, {
+        cache: 'no-store',
         headers: {
           'User-Agent': 'DietApp/1.0 (Integration)'
         }
