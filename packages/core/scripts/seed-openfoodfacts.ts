@@ -34,15 +34,20 @@ async function run() {
     searchableAttributes: ['name', 'brand', 'barcode'],
     filterableAttributes: ['locale', 'barcode', 'isOfficial'],
     rankingRules: [
+      'isOfficial:desc',
+      'completeness:desc',
       'words',
       'typo',
-      'isOfficial:desc',
       'proximity',
       'attribute',
       'sort',
       'exactness'
     ]
   });
+
+  console.log('Clearing old data from Meilisearch to remove duplicates...');
+  await index.deleteAllDocuments();
+  console.log('Old data cleared! Starting seed process...');
 
   const fileStream = fs.createReadStream(JSONL_FILE_PATH);
   const rl = readline.createInterface({
@@ -90,6 +95,7 @@ async function run() {
         brand: product.brands || '',
         barcode: product.code || '',
         isOfficial: isOfficial ? 1 : 0,
+        completeness: product.completeness || 0,
         calories: calories,
         protein: product.nutriments.proteins_100g || 0,
         fat: fat,
