@@ -37,9 +37,14 @@ export class MeilisearchAdapter implements FoodDataAdapter {
       else if (region === 'ES') countryTag = 'en:spain';
       
       const index = this.client.index(this.indexName);
-      const filters = [`locale = '${lang}'`];
+      const filters: any[] = [`locale = '${lang}'`];
       if (countryTag) {
-        filters.push(`countries = '${countryTag}'`);
+        filters.push([
+          `countries = '${countryTag}'`,
+          `brand = ''`,
+          `brand = 'generic'`,
+          `brand = 'unknown'`
+        ]);
       }
       
       // First, try to find official results

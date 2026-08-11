@@ -16,7 +16,7 @@ function getLocaleFromRequest(request: Request): string {
 
   // European Fallback logic
   const euLocales = ['ro-RO', 'de-DE', 'it-IT', 'pl-PL', 'nl-NL']; // Add others as needed
-  if (euLocales.includes(primaryLang) || primaryLang.startsWith('en-')) {
+  if (euLocales.includes(primaryLang) || primaryLang.startsWith('en-') || primaryLang === 'en') {
     return 'en-GB'; // Default to UK CoFID for Europe/English variants
   }
 
