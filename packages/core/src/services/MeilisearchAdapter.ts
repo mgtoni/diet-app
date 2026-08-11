@@ -37,37 +37,38 @@ export class MeilisearchAdapter implements FoodDataAdapter {
       else if (region === 'ES') countryTag = 'en:spain';
       
       const index = this.client.index(this.indexName);
-      const filters: any[] = [`locale = '${lang}'`];
+      
+      // 1. Fetch top 2 generic items globally that match the query
+      const genericSearch = await index.search(query, {
+        limit: 2,
+        filter: [`locale = '${lang}'`, `brand IS EMPTY`]
+      });
+      const genericHits = genericSearch.hits;
+
+      // 2. Fetch top 20 local branded items
+      let localBrandedHits: any[] = [];
       if (countryTag) {
         const countryFilters = [ `countries = '${countryTag}'` ];
         if (countryTag === 'en:united-kingdom') {
             countryFilters.push(`countries = 'en:uk'`, `countries = 'en:great-britain'`, `countries = 'en:england'`, `countries = 'en:scotland'`, `countries = 'en:wales'`);
         }
         
-        filters.push([
-          ...countryFilters,
-          `brand = ''`,
-          `brand = 'generic'`,
-          `brand = 'unknown'`
-        ]);
+        const localSearch = await index.search(query, {
+          limit: 20,
+          filter: [
+            `locale = '${lang}'`,
+            `brand IS NOT EMPTY`,
+            countryFilters
+          ]
+        });
+        localBrandedHits = localSearch.hits;
       }
       
-      // First, try to find official results
-      let searchResult = await index.search(query, {
-        limit: 20,
-        filter: [...filters, `isOfficial = 1`]
-      });
-
-      // If no official results are found, fallback to unofficial user data
-      if (searchResult.hits.length === 0) {
-        searchResult = await index.search(query, {
-          limit: 20,
-          filter: [...filters, `isOfficial = 0`]
-        });
-      }
-
+      // Combine them: generic first, then local branded
+      const allHits = [...genericHits, ...localBrandedHits];
+      
       // Map to Food objects
-      const foods = searchResult.hits.map(this.mapToFood);
+      const foods = allHits.map(hit => this.mapToFood(hit));
 
       // Deduplicate generic items by name (keep highest quality/first seen)
       const uniqueFoods: Food[] = [];
