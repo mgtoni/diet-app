@@ -32,7 +32,7 @@ async function run() {
   console.log('Configuring index settings...');
   await index.updateSettings({
     searchableAttributes: ['name', 'brand', 'barcode'],
-    filterableAttributes: ['locale', 'barcode', 'isOfficial'],
+    filterableAttributes: ['locale', 'barcode', 'isOfficial', 'countries'],
     rankingRules: [
       'isOfficial:desc',
       'completeness:desc',
@@ -123,7 +123,8 @@ async function run() {
         phosphorus: product.nutriments.phosphorus_100g || 0,
         potassium: product.nutriments.potassium_100g || 0,
         zinc: product.nutriments.zinc_100g || 0,
-        locale: product.lang || 'en'
+        locale: product.lang || 'en',
+        countries: product.countries_tags || []
       };
 
       // Ensure valid ID
