@@ -61,7 +61,26 @@ export class MeilisearchAdapter implements FoodDataAdapter {
         });
       }
 
-      return searchResult.hits.map(this.mapToFood);
+      // Map to Food objects
+      const foods = searchResult.hits.map(this.mapToFood);
+
+      // Deduplicate generic items by name (keep highest quality/first seen)
+      const uniqueFoods: Food[] = [];
+      const seenGenericNames = new Set<string>();
+
+      for (const food of foods) {
+        const isGeneric = !food.brand || food.brand.toLowerCase() === 'generic' || food.brand.toLowerCase() === 'unknown';
+        if (isGeneric) {
+          const nameKey = food.name.toLowerCase().trim();
+          if (seenGenericNames.has(nameKey)) {
+            continue; // Skip duplicate generic item
+          }
+          seenGenericNames.add(nameKey);
+        }
+        uniqueFoods.push(food);
+      }
+
+      return uniqueFoods;
     } catch (error) {
       console.error('Meilisearch search error:', error);
       return [];

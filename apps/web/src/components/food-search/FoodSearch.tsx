@@ -26,7 +26,8 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
     
     setLoading(true);
     try {
-      const res = await fetch(`/api/foods/search?q=${encodeURIComponent(searchQuery)}`);
+      const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-GB';
+      const res = await fetch(`/api/foods/search?q=${encodeURIComponent(searchQuery)}&locale=${encodeURIComponent(locale)}`);
       const json = await res.json();
       if (json.success) {
         setResults(json.data);

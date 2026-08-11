@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { FoodService } from '@diet-app/core';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 
-function getLocaleFromRequest(request: Request): string {
+function getLocaleFromRequest(request: Request, searchParams: URLSearchParams): string {
+  // 1. Prefer client's navigator.language sent via query param
+  const queryLocale = searchParams.get('locale');
+  if (queryLocale) return queryLocale;
+
+  // 2. Fallback to Accept-Language header
   const acceptLanguage = request.headers.get('Accept-Language');
   if (!acceptLanguage) return 'en-US';
 
@@ -36,7 +41,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Missing search query' } }, { status: 400 });
     }
 
-    const locale = getLocaleFromRequest(request);
+    const locale = getLocaleFromRequest(request, searchParams);
 
     // FoodService handles the "Quality Waterfall" (Supabase -> Meilisearch -> OFF)
     const results = await foodService.search(query, locale);
