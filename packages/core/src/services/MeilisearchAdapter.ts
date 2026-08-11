@@ -39,8 +39,13 @@ export class MeilisearchAdapter implements FoodDataAdapter {
       const index = this.client.index(this.indexName);
       const filters: any[] = [`locale = '${lang}'`];
       if (countryTag) {
+        const countryFilters = [ `countries = '${countryTag}'` ];
+        if (countryTag === 'en:united-kingdom') {
+            countryFilters.push(`countries = 'en:uk'`, `countries = 'en:great-britain'`, `countries = 'en:england'`, `countries = 'en:scotland'`, `countries = 'en:wales'`);
+        }
+        
         filters.push([
-          `countries = '${countryTag}'`,
+          ...countryFilters,
           `brand = ''`,
           `brand = 'generic'`,
           `brand = 'unknown'`
