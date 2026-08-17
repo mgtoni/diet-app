@@ -3,10 +3,17 @@
 import React, { useState } from 'react';
 import { supabase } from '@/utils/supabase/client';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'auth-callback-failed') {
+      setError('Authentication failed. The magic link may have expired.');
+    }
+  }, []);
 
   const handleSendMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +24,7 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
         },
       });
 
@@ -33,11 +40,11 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-surface flex flex-col justify-center items-center p-6">
       <div className="max-w-md w-full bg-white rounded-[24px] p-8 smeg-shadow border border-mint-surface">
         <div className="text-center mb-8">
-          <h1 className="font-headline-lg text-ink-text mb-2">Create Account</h1>
+          <h1 className="font-headline-lg text-ink-text mb-2">Sign in or Create Account</h1>
           <p className="text-body-md text-on-surface-variant">
             {status === 'sent' 
               ? 'Check your inbox for a magic link.' 
-              : 'Enter your email to get started with your personalized plan.'}
+              : 'Enter your email to log in or get started with your personalized plan.'}
           </p>
         </div>
 

@@ -1,39 +1,46 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/utils/supabase/admin';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: Request) {
-  try {
-    const targetUserId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
-    
-    // Get the specific user for development bypass purposes
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, units')
-      .eq('id', targetUserId)
-      .single();
-    
-    if (userError || !user) {
-      return NextResponse.json({ success: false, error: { message: 'Test user not found in the database. Please ensure they are registered.' } }, { status: 400 });
-    }
-    
-    const userId = user.id;
-    const units = user.units || 'metric';
+  const { searchParams, origin } = new URL(request.url);
+  const email = searchParams.get('email');
+  const secret = searchParams.get('secret');
 
-    const cookieStore = await cookies();
-    cookieStore.set('dev_user_id', userId, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 1 week
-    });
-    
-    cookieStore.set('dev_user_units', units, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 1 week
-    });
-
-    return NextResponse.json({ success: true, message: 'Dev bypass active', user: { id: userId, units } });
-  } catch (error: any) {
-    console.error('Error in dev bypass:', error);
-    return NextResponse.json({ success: false, error: { code: 'INTERNAL_SERVER_ERROR', message: error.message } }, { status: 500 });
+  if (process.env.NODE_ENV !== 'development' && process.env.VERCEL_ENV === 'production') {
+    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
   }
+
+  if (secret !== process.env.DEV_BYPASS_SECRET) {
+    return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
+  }
+
+  if (!email) {
+    return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+  }
+
+  // Use the service role key to generate the magic link
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'magiclink',
+    email,
+    options: {
+      redirectTo: `${origin}/auth/callback?next=/dashboard`,
+    },
+  });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (data?.properties?.action_link) {
+    // Redirect the user directly to the magic link URL
+    // This will hit the callback route, exchange the token, and log them in!
+    return NextResponse.redirect(data.properties.action_link);
+  }
+
+  return NextResponse.json({ error: 'Failed to generate link' }, { status: 500 });
 }
