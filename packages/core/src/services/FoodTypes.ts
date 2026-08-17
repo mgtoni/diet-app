@@ -42,6 +42,8 @@ export interface Food {
   imageUrl?: string;
   trustScore?: number;
   completenessScore?: number;
+  novaGroup?: number; // 1-4 scale from Open Food Facts
+  categories?: string[]; // Used for Food Variety Taxonomy matching
 }
 
 export interface FoodDataAdapter {

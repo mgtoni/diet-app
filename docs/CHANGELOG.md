@@ -3,6 +3,14 @@
 This document tracks all major features, architectural decisions, and milestones achieved across chat sessions.
 **AI Agents MUST review this file at the start of a session** to understand the current state of the platform.
 
+## August 17, 2026 - Phase 3 (Scoring & Rules) Completion
+**Status:** Completed
+
+- **ScoringService:** Implemented Nutrition Score and Diet Quality Score calculators, fully unit tested.
+- **HealthRuleEngine:** Implemented rule-based condition checks with a supporting Supabase migration (`health_rules`).
+- **RecommendationEngine:** Implemented swap and meal suggestion logic.
+- **UI Integration:** Integrated live mock scores into `/dashboard` and non-blocking health warnings into the `/diary` UI.
+
 ## August 5, 2026 - Global Food Data Ingestion Pipeline
 **Status:** Completed & Deployed
 

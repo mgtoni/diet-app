@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
-
 import { cookies } from 'next/headers';
+import { healthRuleEngine, HealthRule } from '@diet-app/core';
 
 export async function GET(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
@@ -12,9 +12,63 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
     let userId = cookieStore.get('dev_user_id')?.value;
     
     if (!userId) {
-      // Fallback for development if cookie not set yet
       userId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
     }
+
+    // Fetch active health rules for the user from Supabase
+    const { data: userConditions, error: conditionsError } = await supabaseAdmin
+      .from('user_health_conditions')
+      .select(`
+        condition_id,
+        health_rules (
+          id,
+          condition_id,
+          display_name,
+          severity,
+          allowed_categories,
+          restricted_categories,
+          flagged_ingredients,
+          preferred_nutrients,
+          restricted_nutrients,
+          warning_message,
+          risk_message,
+          calorie_modifier,
+          macro_overrides
+        )
+      `)
+      .eq('user_id', userId);
+
+    if (conditionsError) {
+      console.error('Error fetching health rules:', conditionsError);
+    }
+
+    const activeRules: HealthRule[] = [];
+    if (userConditions) {
+      for (const uc of userConditions) {
+        // userConditions joins on health_rules
+        if (uc.health_rules && Array.isArray(uc.health_rules)) {
+           uc.health_rules.forEach((rule: any) => {
+             activeRules.push({
+               id: rule.id,
+               conditionId: rule.condition_id,
+               displayName: rule.display_name,
+               severity: rule.severity,
+               allowedCategories: rule.allowed_categories,
+               restrictedCategories: rule.restricted_categories,
+               flaggedIngredients: rule.flagged_ingredients,
+               preferredNutrients: rule.preferred_nutrients,
+               restrictedNutrients: rule.restricted_nutrients,
+               warningMessage: rule.warning_message,
+               riskMessage: rule.risk_message,
+               calorieModifier: rule.calorie_modifier,
+               macroOverrides: rule.macro_overrides,
+             });
+           });
+        }
+      }
+    }
+
+    healthRuleEngine.loadUserRules(userId, activeRules);
 
     // Fetch diary entries and items
     const { data: entries, error } = await supabaseAdmin
@@ -50,15 +104,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
     const formattedEntries = entries?.map(entry => ({
       id: entry.id,
       mealSlot: entry.meal_slot,
-      items: entry.diary_items?.map((item: any) => ({
-        id: item.id,
-        foodId: item.food_id,
-        foodName: item.food_name_logged || item.foods?.name,
-        quantity: item.quantity,
-        servingSizeId: item.serving_size_id,
-        servingName: item.serving_sizes?.serving_name,
-        nutritionSnapshot: item.nutrition_snapshot
-      })) || []
+      items: entry.diary_items?.map((item: any) => {
+        const foodName = item.food_name_logged || item.foods?.name || '';
+        
+        // Evaluate rules
+        const mockFood = { name: foodName, source: 'mock', nutrition: {} as any, categories: [] };
+        const evalResult = healthRuleEngine.evaluateFood(userId, mockFood);
+
+        return {
+          id: item.id,
+          foodId: item.food_id,
+          foodName,
+          quantity: item.quantity,
+          servingSizeId: item.serving_size_id,
+          servingName: item.serving_sizes?.serving_name,
+          nutritionSnapshot: item.nutrition_snapshot,
+          warnings: evalResult.warnings
+        };
+      }) || []
     })) || [];
 
     return NextResponse.json({ success: true, data: { date, entries: formattedEntries } });
