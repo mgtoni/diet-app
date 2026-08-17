@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { healthRuleEngine, HealthRule } from '@diet-app/core';
 
 export async function GET(request: Request, { params }: { params: Promise<{ date: string }> }) {
   try {
     const { date } = await params;
     
-    // Get user from bypass cookie
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('dev_user_id')?.value;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!userId) {
-      userId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
+    const userId = user.id;
 
     // Fetch active health rules for the user from Supabase
     // Step 1: Get the user's conditions from the existing `health_conditions` table
@@ -131,14 +131,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ dat
       return NextResponse.json({ success: false, error: { message: 'Missing required fields' } }, { status: 400 });
     }
 
-    // Get user from bypass cookie
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('dev_user_id')?.value;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!userId) {
-      // Fallback
-      userId = '2fa3350d-bb2f-41a3-9e79-419cbcd7fbfc';
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
+    const userId = user.id;
 
     // 1. Get or create diary_entry
     let { data: entry, error: entryError } = await supabaseAdmin
