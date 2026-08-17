@@ -36,6 +36,15 @@ INSERT INTO system_health_rules (condition_name, display_name, severity, restric
     '["gluten", "wheat", "barley", "rye", "oats"]', 
     'This food may contain gluten, which is restricted for Coeliac Disease.', 
     'Logging gluten can cause severe autoimmune reactions and damage to the small intestine.'
+),
+(
+    'Diabetes', 
+    'Blood Sugar Management', 
+    'important', 
+    '[]', 
+    '["sugar", "high fructose corn syrup", "agave nectar"]', 
+    'This food is high in added sugars or refined carbohydrates, which can spike blood sugar.', 
+    'Frequent consumption of high-glycemic foods can lead to poor blood glucose control.'
 );
 
 -- Add the foreign key relationship to link the user's `health_conditions` to the `system_health_rules`
