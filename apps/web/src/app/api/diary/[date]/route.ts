@@ -16,54 +16,45 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
     }
 
     // Fetch active health rules for the user from Supabase
+    // Step 1: Get the user's conditions from the existing `health_conditions` table
     const { data: userConditions, error: conditionsError } = await supabaseAdmin
-      .from('user_health_conditions')
-      .select(`
-        condition_id,
-        health_rules (
-          id,
-          condition_id,
-          display_name,
-          severity,
-          allowed_categories,
-          restricted_categories,
-          flagged_ingredients,
-          preferred_nutrients,
-          restricted_nutrients,
-          warning_message,
-          risk_message,
-          calorie_modifier,
-          macro_overrides
-        )
-      `)
+      .from('health_conditions')
+      .select('condition_name')
       .eq('user_id', userId);
 
     if (conditionsError) {
-      console.error('Error fetching health rules:', conditionsError);
+      console.error('Error fetching user conditions:', conditionsError);
     }
 
     const activeRules: HealthRule[] = [];
-    if (userConditions) {
-      for (const uc of userConditions) {
-        // userConditions joins on health_rules
-        if (uc.health_rules && Array.isArray(uc.health_rules)) {
-           uc.health_rules.forEach((rule: any) => {
-             activeRules.push({
-               id: rule.id,
-               conditionId: rule.condition_id,
-               displayName: rule.display_name,
-               severity: rule.severity,
-               allowedCategories: rule.allowed_categories,
-               restrictedCategories: rule.restricted_categories,
-               flaggedIngredients: rule.flagged_ingredients,
-               preferredNutrients: rule.preferred_nutrients,
-               restrictedNutrients: rule.restricted_nutrients,
-               warningMessage: rule.warning_message,
-               riskMessage: rule.risk_message,
-               calorieModifier: rule.calorie_modifier,
-               macroOverrides: rule.macro_overrides,
-             });
-           });
+    if (userConditions && userConditions.length > 0) {
+      const conditionNames = userConditions.map(uc => uc.condition_name);
+      
+      // Step 2: Get the global rules for these conditions
+      const { data: rules, error: rulesError } = await supabaseAdmin
+        .from('system_health_rules')
+        .select('*')
+        .in('condition_name', conditionNames);
+
+      if (rulesError) {
+        console.error('Error fetching system health rules:', rulesError);
+      } else if (rules) {
+        for (const rule of rules) {
+          activeRules.push({
+            id: rule.id,
+            conditionId: rule.condition_name, // Map condition_name to conditionId for the engine
+            displayName: rule.display_name,
+            severity: rule.severity,
+            allowedCategories: rule.allowed_categories,
+            restrictedCategories: rule.restricted_categories,
+            flaggedIngredients: rule.flagged_ingredients,
+            preferredNutrients: rule.preferred_nutrients,
+            restrictedNutrients: rule.restricted_nutrients,
+            warningMessage: rule.warning_message,
+            riskMessage: rule.risk_message,
+            calorieModifier: rule.calorie_modifier,
+            macroOverrides: rule.macro_overrides,
+          });
         }
       }
     }
