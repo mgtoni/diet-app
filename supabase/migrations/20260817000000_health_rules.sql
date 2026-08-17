@@ -38,3 +38,11 @@ INSERT INTO system_health_rules (condition_name, display_name, severity, restric
     'Logging gluten can cause severe autoimmune reactions and damage to the small intestine.'
 );
 
+-- Add the foreign key relationship to link the user's `health_conditions` to the `system_health_rules`
+ALTER TABLE public.health_conditions
+  ADD CONSTRAINT health_conditions_condition_name_fkey 
+  FOREIGN KEY (condition_name) 
+  REFERENCES public.system_health_rules(condition_name) 
+  ON UPDATE CASCADE 
+  ON DELETE RESTRICT;
+
