@@ -6,9 +6,8 @@ export async function GET(request: Request) {
   const email = searchParams.get('email');
   const secret = searchParams.get('secret');
 
-  if (process.env.NODE_ENV !== 'development' && process.env.VERCEL_ENV === 'production') {
-    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 });
-  }
+  // Removed production block to allow testing on Vercel
+  // Make sure your DEV_BYPASS_SECRET is strong!
 
   if (secret !== process.env.DEV_BYPASS_SECRET) {
     return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
