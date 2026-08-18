@@ -8,16 +8,23 @@ export default function DashboardPage() {
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    if (!data) setLoading(true);
+    else setIsRefetching(true);
+
     fetch('/api/dashboard?date=' + date)
       .then(res => res.json())
       .then(res => {
         setData(res.data);
         setLoading(false);
+        setIsRefetching(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        setIsRefetching(false);
+      });
   }, [date]);
 
   const handleDateChange = (offset: number) => {
@@ -26,7 +33,7 @@ export default function DashboardPage() {
     setDate(d.toISOString().split('T')[0]);
   };
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
@@ -61,7 +68,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className={`transition-opacity duration-300 ${isRefetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-1 h-full">
           <ScoreCard 
             title="Nutrition Score"
@@ -116,6 +124,7 @@ export default function DashboardPage() {
         <Link href="/diary" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-900 font-bold py-4 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-1 text-center">
           Open Food Diary
         </Link>
+      </div>
       </div>
     </div>
   );

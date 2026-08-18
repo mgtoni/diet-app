@@ -15,10 +15,13 @@ export default function DiaryPage() {
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [diaryData, setDiaryData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(false);
   const [showSearch, setShowSearch] = useState<string | null>(null);
 
   const fetchDiaryData = async () => {
-    setLoading(true);
+    if (!diaryData) setLoading(true);
+    else setIsRefetching(true);
+
     try {
       const res = await fetch(`/api/diary/${date}`);
       const json = await res.json();
@@ -27,6 +30,7 @@ export default function DiaryPage() {
       console.error(e);
     } finally {
       setLoading(false);
+      setIsRefetching(false);
     }
   };
 
@@ -57,12 +61,12 @@ export default function DiaryPage() {
         </div>
       </header>
 
-      {loading ? (
+      {loading && !diaryData ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500"></div>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className={`space-y-6 transition-opacity duration-300 ${isRefetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
           {MEAL_SLOTS.map(slot => {
             const entry = diaryData?.entries?.find((e: any) => e.mealSlot === slot.id);
             const items = entry?.items || [];
