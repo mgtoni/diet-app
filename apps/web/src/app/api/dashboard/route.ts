@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
+    const userId = user.id;
     const today = new Date().toISOString().split('T')[0];
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || today;
