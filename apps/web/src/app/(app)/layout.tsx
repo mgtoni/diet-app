@@ -25,9 +25,9 @@ export default function AppLayout({
           </div>
         </div>
       </nav>
-      <div className="max-w-[1200px] mx-auto px-gutter py-gutter lg:flex lg:gap-gutter flex-1 w-full">
+      <div className="max-w-[1200px] mx-auto px-gutter py-gutter lg:flex flex-1 w-full relative">
         {/* Sidebar (Desktop) */}
-        <aside className="hidden lg:flex flex-col h-[calc(100vh-80px)] py-gutter sticky top-20 w-64 bg-mint-surface rounded-r-xl shadow-md shrink-0">
+        <aside className="hidden lg:flex flex-col h-[calc(100vh-80px)] py-gutter sticky top-20 w-64 bg-mint-surface rounded-r-xl shadow-md shrink-0 z-10 border-r border-outline-variant/30">
           <div className="px-6 mb-8">
             <h2 className="font-headline-md text-primary">Welcome back</h2>
             <p className="text-on-surface-variant text-caption mt-1">Healthy habits start here</p>
@@ -67,8 +67,18 @@ export default function AppLayout({
           </div>
         </aside>
 
+        {/* Notebook Rings */}
+        <div className="hidden lg:flex flex-col justify-evenly relative z-20 w-0 pointer-events-none mt-16 mb-16">
+            {[...Array(14)].map((_, i) => (
+              <div key={i} className="w-10 h-3 -ml-5 bg-gradient-to-b from-gray-300 via-white to-gray-400 rounded-full shadow-[0_2px_3px_rgba(0,0,0,0.3)] border border-gray-400 flex items-center justify-between px-1">
+                 <div className="w-1.5 h-2 bg-gray-800 rounded-full shadow-inner opacity-60"></div>
+                 <div className="w-1.5 h-2 bg-gray-900 rounded-full shadow-inner opacity-60"></div>
+              </div>
+            ))}
+        </div>
+
         {/* Main Content Area */}
-        <main className="flex-1 lg:max-w-4xl pb-32 lg:pb-0">
+        <main className="flex-1 lg:max-w-4xl pb-32 lg:pb-0 bg-[#FDF6E3] lg:rounded-tl-xl shadow-[-4px_0_12px_rgba(0,0,0,0.05)] border-l border-[#eaddc5] overflow-hidden">
           {children}
         </main>
       </div>

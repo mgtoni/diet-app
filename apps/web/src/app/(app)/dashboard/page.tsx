@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   if (loading && !data) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
@@ -52,26 +52,26 @@ export default function DashboardPage() {
   const progress = Math.min((caloriesConsumed / calorieTarget) * 100, 100);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 pb-24 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-transparent text-gray-900 p-6 pb-24 font-sans selection:bg-emerald-500/30">
       <header className="mb-8 pt-4 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-200">
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">
             AI Coach
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Your daily nutrition overview</p>
+          <p className="text-gray-600 text-sm mt-1">Your daily nutrition overview</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-gray-900 rounded-2xl p-1 border border-gray-800">
-          <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-400 hover:text-white transition-colors">
+        <div className="flex items-center gap-4 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm">
+          <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <span className="font-semibold w-24 text-center text-sm md:text-base">
+          <span className="font-semibold w-24 text-center text-sm md:text-base text-gray-900">
             {isToday ? 'Today' : date}
           </span>
           <button 
             onClick={() => handleDateChange(1)} 
             disabled={isToday}
-            className={`p-2 transition-colors ${isToday ? 'text-gray-700 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+            className={`p-2 transition-colors ${isToday ? 'text-gray-400 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900'}`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
           </button>
@@ -108,18 +108,18 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 border border-gray-800 shadow-xl mb-8">
+      <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm mb-8">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h2 className="text-gray-400 font-medium mb-1">Calories Remaining</h2>
-            <div className="text-4xl font-bold text-white">{remaining} <span className="text-lg text-gray-500 font-normal">kcal</span></div>
+            <h2 className="text-gray-600 font-medium mb-1">Calories Remaining</h2>
+            <div className="text-4xl font-bold text-gray-900">{remaining} <span className="text-lg text-gray-500 font-normal">kcal</span></div>
           </div>
           <div className="text-right">
-            <div className="text-emerald-400 font-medium">{caloriesConsumed} eaten</div>
+            <div className="text-emerald-600 font-medium">{caloriesConsumed} eaten</div>
             <div className="text-gray-500 text-sm">{calorieTarget} goal</div>
           </div>
         </div>
-        <div className="h-4 w-full bg-gray-800 rounded-full overflow-hidden shadow-inner">
+        <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
           <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
         </div>
 
@@ -166,26 +166,26 @@ function GroupedDietQualityCard({ score }: { score: number }) {
 
   return (
     <>
-      <div className="bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-800 shadow-xl relative overflow-hidden group hover:border-teal-500/50 transition-all duration-500 flex flex-col md:flex-row gap-6 h-full">
+      <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-200 shadow-sm relative overflow-hidden group hover:border-teal-400/50 transition-all duration-500 flex flex-col md:flex-row gap-6 h-full">
         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-teal-500/10 blur-2xl group-hover:bg-teal-500/20 transition-all"></div>
         
         {/* Desktop Help Button */}
         <button 
           onClick={() => setShowInfo(true)}
-          className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-gray-800 border border-gray-700 items-center justify-center text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all z-10"
+          className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-white border border-gray-300 items-center justify-center text-xs text-gray-500 hover:text-gray-900 hover:border-gray-400 transition-all z-10"
           title="Learn more"
         >
           ?
         </button>
 
         {/* Left Side: Score */}
-        <div className="flex-1 border-b md:border-b-0 md:border-r border-gray-800/50 pb-6 md:pb-0 md:pr-6 flex flex-col justify-center relative">
-          <h2 className="text-gray-400 font-medium mb-2">Diet Quality (7-Day)</h2>
+        <div className="flex-1 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 flex flex-col justify-center relative">
+          <h2 className="text-gray-600 font-medium mb-2">Diet Quality (7-Day)</h2>
           <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-black text-white">{score}</span>
+            <span className="text-5xl font-black text-gray-900">{score}</span>
             <span className="text-gray-500 font-medium">/ 100</span>
           </div>
-          <div className="mt-4 h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+          <div className="mt-4 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-orange-400 to-teal-400" style={{ width: `${score}%` }}></div>
           </div>
         </div>
@@ -198,10 +198,10 @@ function GroupedDietQualityCard({ score }: { score: number }) {
               <LineChart data={history} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                 <YAxis domain={[0, 100]} hide />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px', color: '#fff', fontSize: '12px', padding: '4px 8px' }}
+                  contentStyle={{ backgroundColor: '#fff', borderColor: '#e5e7eb', borderRadius: '8px', color: '#111827', fontSize: '12px', padding: '4px 8px' }}
                   itemStyle={{ color: '#34d399' }}
                   labelStyle={{ display: 'none' }}
-                  cursor={{ stroke: '#374151', strokeWidth: 1 }}
+                  cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
                 />
                 <Line 
                   type="monotone" 
@@ -224,7 +224,7 @@ function GroupedDietQualityCard({ score }: { score: number }) {
         {/* Mobile Learn More Bar */}
         <button 
           onClick={() => setShowInfo(true)}
-          className="md:hidden absolute bottom-0 left-0 right-0 bg-gray-800/40 border-t border-gray-800/50 py-2 text-xs text-gray-400 font-medium hover:bg-gray-800/60 transition-colors flex items-center justify-center gap-1 z-10"
+          className="md:hidden absolute bottom-0 left-0 right-0 bg-white/40 border-t border-gray-200 py-2 text-xs text-gray-600 font-medium hover:bg-white/60 transition-colors flex items-center justify-center gap-1 z-10"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -234,15 +234,15 @@ function GroupedDietQualityCard({ score }: { score: number }) {
       </div>
 
       {showInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
-          <div className="bg-gray-950 border border-gray-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowInfo(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-800 transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
+          <div className="bg-white border border-gray-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowInfo(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h3 className="text-xl font-bold text-white mb-3">Diet Quality (7-Day)</h3>
-            <div className="text-gray-400 text-sm leading-relaxed space-y-3">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Diet Quality (7-Day)</h3>
+            <div className="text-gray-600 text-sm leading-relaxed space-y-3">
               <p>Your <strong>Diet Quality Score</strong> evaluates the overall healthfulness and diversity of your diet, beyond just calories and macros. It is calculated over a rolling 7-day window.</p>
               <p className="mt-2">It factors in:</p>
               <ul className="list-disc pl-5 space-y-1 mt-1">
@@ -266,14 +266,14 @@ function MacroCard({ name, color, data }: { name: string, color: string, data: a
     <div className="flex flex-col items-center">
       <div className="relative w-16 h-16 mb-2">
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-          <path className="text-gray-800" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path className="text-gray-200" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           <path className={`${color.replace('bg-', 'text-')} transition-all duration-1000 ease-out`} strokeWidth="3" strokeDasharray={`${percent}, 100`} stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-300">
+        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
           {data.consumed}g
         </div>
       </div>
-      <span className="text-gray-400 text-sm">{name}</span>
+      <span className="text-gray-600 text-sm">{name}</span>
     </div>
   );
 }
@@ -297,32 +297,32 @@ function ScoreCard({
 
   return (
     <>
-      <div className={`bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-800 shadow-xl relative overflow-hidden group ${hoverBorderClass} transition-all duration-500 flex flex-col h-full`}>
+      <div className={`bg-white/60 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-200 shadow-sm relative overflow-hidden group ${hoverBorderClass} transition-all duration-500 flex flex-col h-full`}>
         <div className={`absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full blur-2xl transition-all ${bubbleClass}`}></div>
         
         {/* Desktop Help Button */}
         <button 
           onClick={() => setShowInfo(true)}
-          className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-gray-800 border border-gray-700 items-center justify-center text-xs text-gray-400 hover:text-white hover:border-gray-500 transition-all z-10"
+          className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-white border border-gray-300 items-center justify-center text-xs text-gray-500 hover:text-gray-900 hover:border-gray-400 transition-all z-10"
           aria-label="Learn more about this score"
           title="Learn more"
         >
           ?
         </button>
 
-        <h2 className="text-gray-400 font-medium mb-2">{title}</h2>
+        <h2 className="text-gray-600 font-medium mb-2">{title}</h2>
         <div className="flex items-baseline gap-2">
-          <span className="text-5xl font-black text-white">{score}</span>
+          <span className="text-5xl font-black text-gray-900">{score}</span>
           <span className="text-gray-500 font-medium">/ 100</span>
         </div>
-        <div className="mt-4 h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+        <div className="mt-4 h-2 w-full bg-gray-200 rounded-full overflow-hidden">
           <div className={`h-full ${barGradientClass}`} style={{ width: `${score}%` }}></div>
         </div>
 
         {/* Mobile Learn More Bar */}
         <button 
           onClick={() => setShowInfo(true)}
-          className="md:hidden absolute bottom-0 left-0 right-0 bg-gray-800/40 border-t border-gray-800/50 py-2 text-xs text-gray-400 font-medium hover:bg-gray-800/60 transition-colors flex items-center justify-center gap-1 z-10"
+          className="md:hidden absolute bottom-0 left-0 right-0 bg-white/40 border-t border-gray-200 py-2 text-xs text-gray-600 font-medium hover:bg-white/60 transition-colors flex items-center justify-center gap-1 z-10"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -333,21 +333,21 @@ function ScoreCard({
 
       {/* Overlay */}
       {showInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
           <div 
-            className="bg-gray-950 border border-gray-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative"
+            className="bg-white border border-gray-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
               onClick={() => setShowInfo(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-800 transition-colors"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-            <div className="text-gray-400 text-sm leading-relaxed space-y-3">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
+            <div className="text-gray-600 text-sm leading-relaxed space-y-3">
               {explanation}
             </div>
             <button 
