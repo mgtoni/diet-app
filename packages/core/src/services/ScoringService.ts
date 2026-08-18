@@ -83,12 +83,11 @@ export class ScoringService {
   }
 
   /**
-   * Calculates the Diet Quality Score (0-100 scale).
+   * Calculates the Diet Quality Score (0-100 scale) over a 7-day rolling window.
    */
   calculateDietQualityScore(
-    foodsLoggedToday: Food[],
     foodsLoggedPast7Days: Food[],
-    macroBalanceScore: number, // Passed from Nutrition Score
+    macroBalanceScore: number, // Passed from Nutrition Score (can be an average of last 7 days)
     dailyFibreTarget: number = 30 // grams
   ): { score: number; breakdown: DietQualityBreakdown } {
     let fibreScore = 0;
@@ -97,25 +96,25 @@ export class ScoringService {
     let processedScore = 0;
     let macroComponentScore = Math.round((macroBalanceScore / 50) * 10); // scale 50 -> 10
 
-    // 1. Fibre Intake (20 points)
-    const totalFibre = foodsLoggedToday.reduce((sum, food) => sum + (food.nutrition.fiber || 0), 0);
-    fibreScore = Math.min(20, (totalFibre / dailyFibreTarget) * 20);
+    // 1. Fibre Intake (20 points) - 7 day average
+    const totalFibre = foodsLoggedPast7Days.reduce((sum, food) => sum + (food.nutrition.fiber || 0), 0);
+    const averageDailyFibre = totalFibre / 7;
+    fibreScore = Math.min(20, (averageDailyFibre / dailyFibreTarget) * 20);
 
     // 2. Micronutrients (30 points) - simplify by checking presence of key vitamins/minerals
     const microList = ['vitaminA', 'vitaminC', 'vitaminD', 'calcium', 'iron', 'potassium', 'magnesium'];
-    let microHitCount = 0;
     
     // For a real implementation, we'd compare totals to RDAs. Here we do a proxy: 
-    // did they get > 20% of daily value of these common micros from today's food?
+    // did they get > 0 of daily value of these common micros from the past 7 days?
     // We will just do a simple aggregation proxy for now.
     const microTotals: Record<string, number> = {};
-    for (const food of foodsLoggedToday) {
+    for (const food of foodsLoggedPast7Days) {
       for (const m of microList) {
         microTotals[m] = (microTotals[m] || 0) + (food.nutrition[m as keyof typeof food.nutrition] || 0);
       }
     }
     // Assume if they have > 0 for 5+ micros, they get a decent score. 
-    // (In production, replace with exact RDA thresholds)
+    // (In production, replace with exact RDA thresholds over 7 days)
     const activeMicros = Object.values(microTotals).filter(v => v > 0).length;
     microScore = Math.min(30, (activeMicros / microList.length) * 30);
 
@@ -129,8 +128,8 @@ export class ScoringService {
 
     // 4. Processed Food Ratio (20 points)
     let processedCount = 0;
-    let totalFoods = foodsLoggedToday.length;
-    for (const food of foodsLoggedToday) {
+    let totalFoods = foodsLoggedPast7Days.length;
+    for (const food of foodsLoggedPast7Days) {
       // novaGroup 3 or 4 = processed
       if (food.novaGroup === 3 || food.novaGroup === 4) {
         processedCount++;
@@ -141,7 +140,7 @@ export class ScoringService {
       // If ratio is 0%, get 20 points. If 100%, get 0.
       processedScore = 20 * (1 - processedRatio);
     } else {
-      processedScore = 0; // Or 20 if no food logged? Let's say 0 to encourage logging
+      processedScore = 0; // 0 to encourage logging
     }
 
     return {

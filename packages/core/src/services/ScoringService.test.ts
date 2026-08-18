@@ -34,31 +34,26 @@ describe('ScoringService', () => {
   });
 
   describe('Diet Quality Score', () => {
-    it('calculates properly based on mock inputs', () => {
-      const foodsToday: Partial<Food>[] = [
-        { name: 'Broccoli', nutrition: { fiber: 15, vitaminC: 100 } as any, novaGroup: 1, categories: ['cruciferous'] },
-        { name: 'Chicken breast', nutrition: { fiber: 0 } as any, novaGroup: 1, categories: ['lean_meats'] }
-      ];
-      
+    it('calculates properly based on mock inputs over 7 days', () => {
       const foods7Days: Partial<Food>[] = [
-        ...foodsToday,
+        { name: 'Broccoli', nutrition: { fiber: 15, vitaminC: 100 } as any, novaGroup: 1, categories: ['cruciferous'] },
+        { name: 'Chicken breast', nutrition: { fiber: 0 } as any, novaGroup: 1, categories: ['lean_meats'] },
         { name: 'Apple', nutrition: { fiber: 4 } as any, novaGroup: 1, categories: ['other_fruits'] }
       ];
 
       const result = scoringService.calculateDietQualityScore(
-        foodsToday as Food[],
         foods7Days as Food[],
         50, // Macro score from Nutrition Score
         30
       );
 
-      // Fiber (15/30 * 20 = 10)
-      expect(result.breakdown.fibre).toBe(10);
+      // Fiber (total 19 / 7 days = 2.71 daily avg. 2.71/30 * 20 = 1.8)
+      expect(result.breakdown.fibre).toBe(2);
       
       // Macros (50/50 * 10 = 10)
       expect(result.breakdown.macros).toBe(10);
 
-      // Processed food (0 processed / 2 total = 100% natural -> 20 pts)
+      // Processed food (0 processed / 3 total = 100% natural -> 20 pts)
       expect(result.breakdown.processedFood).toBe(20);
       
       // Variety (3 unique categories -> 3 pts)

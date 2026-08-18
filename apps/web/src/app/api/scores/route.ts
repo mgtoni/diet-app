@@ -41,7 +41,6 @@ export async function GET(request: Request) {
   ];
 
   const dietQualityResult = scoringService.calculateDietQualityScore(
-    foodsLoggedToday as any,
     foodsLoggedPast7Days as any,
     nutritionScoreResult.breakdown.macroBalance,
     30

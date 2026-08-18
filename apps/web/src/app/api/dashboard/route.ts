@@ -42,42 +42,58 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || today;
 
+    const endDate = new Date(dateParam);
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 6); // 7 day rolling window including today
+
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = dateParam;
+
     const { data: entries } = await supabaseAdmin
       .from('diary_entries')
       .select(`
         id,
+        entry_date,
         diary_items (
           nutrition_snapshot,
           food_name_logged
         )
       `)
       .eq('user_id', userId)
-      .eq('entry_date', dateParam);
+      .gte('entry_date', startDateStr)
+      .lte('entry_date', endDateStr);
 
     let totalCaloriesLogged = 0;
     let totalProteinLogged = 0;
     let totalFatLogged = 0;
     let totalCarbsLogged = 0;
 
+    const foodsLoggedPast7Days: any[] = [];
     const foodsLoggedToday: any[] = [];
 
     if (entries) {
       entries.forEach(entry => {
+        const isToday = entry.entry_date === dateParam;
         if (entry.diary_items) {
           entry.diary_items.forEach((item: any) => {
             const snap = item.nutrition_snapshot;
             if (snap) {
-              totalCaloriesLogged += snap.calories || 0;
-              totalProteinLogged += snap.protein || 0;
-              totalFatLogged += snap.fat || 0;
-              totalCarbsLogged += snap.carbohydrates || 0;
-              
-              foodsLoggedToday.push({
+              const foodObj = {
                 name: item.food_name_logged,
                 nutrition: snap,
                 novaGroup: 1, 
                 categories: []
-              });
+              };
+              
+              foodsLoggedPast7Days.push(foodObj);
+              
+              if (isToday) {
+                totalCaloriesLogged += snap.calories || 0;
+                totalProteinLogged += snap.protein || 0;
+                totalFatLogged += snap.fat || 0;
+                totalCarbsLogged += snap.carbohydrates || 0;
+                foodsLoggedToday.push(foodObj);
+              }
             }
           });
         }
@@ -93,11 +109,18 @@ export async function GET(request: Request) {
     );
 
     const dietQualityResult = scoringService.calculateDietQualityScore(
-      foodsLoggedToday,
-      foodsLoggedToday, // simple fallback for now
+      foodsLoggedPast7Days, // Use 7-day logs
       nutritionScoreResult.breakdown.macroBalance,
       30
     );
+
+    // Upsert to daily_scores_rollup (fire and forget to not block response, or await it)
+    await supabaseAdmin.from('daily_scores_rollup').upsert({
+      user_id: userId,
+      date: dateParam,
+      nutrition_score: nutritionScoreResult.score,
+      diet_quality_score: dietQualityResult.score
+    }, { onConflict: 'user_id,date' });
 
     const dashboardData = {
       nutritionScore: nutritionScoreResult.score,
