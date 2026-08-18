@@ -42,12 +42,19 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || today;
 
-    const endDate = new Date(dateParam);
-    const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6); // 7 day rolling window including today
+    // Diet Quality Score is always for the "present week" (ending today)
+    const dqsEndDate = new Date(today);
+    const dqsStartDate = new Date(dqsEndDate);
+    dqsStartDate.setDate(dqsStartDate.getDate() - 6);
 
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = dateParam;
+    const dqsStartDateStr = dqsStartDate.toISOString().split('T')[0];
+    const dqsEndDateStr = today;
+
+    // We need to fetch entries for both the selected dateParam (for nutrition score)
+    // AND the 7 days up to today (for diet quality score)
+    // To do this efficiently, we fetch from min(dateParam, dqsStartDateStr) to max(dateParam, dqsEndDateStr)
+    const minDate = dateParam < dqsStartDateStr ? dateParam : dqsStartDateStr;
+    const maxDate = dateParam > dqsEndDateStr ? dateParam : dqsEndDateStr;
 
     const { data: entries } = await supabaseAdmin
       .from('diary_entries')
@@ -60,8 +67,8 @@ export async function GET(request: Request) {
         )
       `)
       .eq('user_id', userId)
-      .gte('entry_date', startDateStr)
-      .lte('entry_date', endDateStr);
+      .gte('entry_date', minDate)
+      .lte('entry_date', maxDate);
 
     let totalCaloriesLogged = 0;
     let totalProteinLogged = 0;
@@ -69,11 +76,13 @@ export async function GET(request: Request) {
     let totalCarbsLogged = 0;
 
     const foodsLoggedPast7Days: any[] = [];
-    const foodsLoggedToday: any[] = [];
+    const foodsLoggedSelectedDay: any[] = [];
 
     if (entries) {
       entries.forEach(entry => {
-        const isToday = entry.entry_date === dateParam;
+        const isSelectedDate = entry.entry_date === dateParam;
+        const isWithinDqsWindow = entry.entry_date >= dqsStartDateStr && entry.entry_date <= dqsEndDateStr;
+        
         if (entry.diary_items) {
           entry.diary_items.forEach((item: any) => {
             const snap = item.nutrition_snapshot;
@@ -85,14 +94,16 @@ export async function GET(request: Request) {
                 categories: []
               };
               
-              foodsLoggedPast7Days.push(foodObj);
+              if (isWithinDqsWindow) {
+                foodsLoggedPast7Days.push(foodObj);
+              }
               
-              if (isToday) {
+              if (isSelectedDate) {
                 totalCaloriesLogged += snap.calories || 0;
                 totalProteinLogged += snap.protein || 0;
                 totalFatLogged += snap.fat || 0;
                 totalCarbsLogged += snap.carbohydrates || 0;
-                foodsLoggedToday.push(foodObj);
+                foodsLoggedSelectedDay.push(foodObj);
               }
             }
           });
@@ -108,19 +119,23 @@ export async function GET(request: Request) {
       targets
     );
 
+    // Diet Quality Score is calculated for the past 7 days up to TODAY
     const dietQualityResult = scoringService.calculateDietQualityScore(
-      foodsLoggedPast7Days, // Use 7-day logs
+      foodsLoggedPast7Days, 
       nutritionScoreResult.breakdown.macroBalance,
       30
     );
 
-    // Upsert to daily_scores_rollup (fire and forget to not block response, or await it)
-    await supabaseAdmin.from('daily_scores_rollup').upsert({
-      user_id: userId,
-      date: dateParam,
-      nutrition_score: nutritionScoreResult.score,
-      diet_quality_score: dietQualityResult.score
-    }, { onConflict: 'user_id,date' });
+    // Upsert to daily_scores_rollup ONLY if we are looking at today, otherwise don't overwrite history
+    // Since dietQualityResult is always today's score, we don't want to save it as the score for a past date!
+    if (dateParam === today) {
+      await supabaseAdmin.from('daily_scores_rollup').upsert({
+        user_id: userId,
+        date: today,
+        nutrition_score: nutritionScoreResult.score,
+        diet_quality_score: dietQualityResult.score
+      }, { onConflict: 'user_id,date' });
+    }
 
     const dashboardData = {
       nutritionScore: nutritionScoreResult.score,

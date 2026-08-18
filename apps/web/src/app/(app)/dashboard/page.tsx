@@ -5,17 +5,26 @@ import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 export default function DashboardPage() {
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/dashboard')
+    setLoading(true);
+    fetch('/api/dashboard?date=' + date)
       .then(res => res.json())
       .then(res => {
         setData(res.data);
         setLoading(false);
-      });
-  }, []);
+      })
+      .catch(() => setLoading(false));
+  }, [date]);
+
+  const handleDateChange = (offset: number) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + offset);
+    setDate(d.toISOString().split('T')[0]);
+  };
 
   if (loading) {
     return (
@@ -38,8 +47,17 @@ export default function DashboardPage() {
           </h1>
           <p className="text-gray-400 text-sm mt-1">Your daily nutrition overview</p>
         </div>
-        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-gray-900 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-          T
+        
+        <div className="flex items-center gap-4 bg-gray-900 rounded-2xl p-1 border border-gray-800">
+          <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-400 hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <span className="font-semibold w-24 text-center text-sm md:text-base">
+            {date === new Date().toISOString().split('T')[0] ? 'Today' : date}
+          </span>
+          <button onClick={() => handleDateChange(1)} className="p-2 text-gray-400 hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+          </button>
         </div>
       </header>
 
