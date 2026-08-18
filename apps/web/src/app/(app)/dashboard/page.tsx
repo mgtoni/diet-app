@@ -27,11 +27,17 @@ export default function DashboardPage() {
       });
   }, [date]);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const handleDateChange = (offset: number) => {
     const d = new Date(date);
     d.setDate(d.getDate() + offset);
-    setDate(d.toISOString().split('T')[0]);
+    const newDateStr = d.toISOString().split('T')[0];
+    if (newDateStr > todayStr) return; // prevent going into future
+    setDate(newDateStr);
   };
+
+  const isToday = date === todayStr;
 
   if (loading && !data) {
     return (
@@ -60,9 +66,13 @@ export default function DashboardPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
           </button>
           <span className="font-semibold w-24 text-center text-sm md:text-base">
-            {date === new Date().toISOString().split('T')[0] ? 'Today' : date}
+            {isToday ? 'Today' : date}
           </span>
-          <button onClick={() => handleDateChange(1)} className="p-2 text-gray-400 hover:text-white transition-colors">
+          <button 
+            onClick={() => handleDateChange(1)} 
+            disabled={isToday}
+            className={`p-2 transition-colors ${isToday ? 'text-gray-700 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>

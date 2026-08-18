@@ -38,11 +38,17 @@ export default function DiaryPage() {
     fetchDiaryData();
   }, [date]);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const handleDateChange = (offset: number) => {
     const d = new Date(date);
     d.setDate(d.getDate() + offset);
-    setDate(d.toISOString().split('T')[0]);
+    const newDateStr = d.toISOString().split('T')[0];
+    if (newDateStr > todayStr) return; // prevent going into future
+    setDate(newDateStr);
   };
+
+  const isToday = date === todayStr;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6 pb-24 font-sans selection:bg-emerald-500/30">
@@ -54,8 +60,12 @@ export default function DiaryPage() {
           <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-400 hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <span className="font-semibold w-24 text-center">{date === new Date().toISOString().split('T')[0] ? 'Today' : date}</span>
-          <button onClick={() => handleDateChange(1)} className="p-2 text-gray-400 hover:text-white transition-colors">
+          <span className="font-semibold w-24 text-center">{isToday ? 'Today' : date}</span>
+          <button 
+            onClick={() => handleDateChange(1)} 
+            disabled={isToday}
+            className={`p-2 transition-colors ${isToday ? 'text-gray-700 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>
