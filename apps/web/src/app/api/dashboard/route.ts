@@ -11,11 +11,41 @@ export async function GET(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
-    const userId = user.id;
+    const today = new Date().toISOString().split('T')[0];
+    const { searchParams } = new URL(request.url);
+    const dateParam = searchParams.get('date') || today;
 
-    // 1. Fetch user targets (from profile and goals)
-    const { data: profile } = await supabaseAdmin.from('profiles').select('*').eq('id', userId).single();
-    const { data: goal } = await supabaseAdmin.from('goals').select('*').eq('user_id', userId).eq('is_active', true).single();
+    const dqsEndDate = new Date(today);
+    const dqsStartDate = new Date(dqsEndDate);
+    dqsStartDate.setDate(dqsStartDate.getDate() - 6);
+    const dqsStartDateStr = dqsStartDate.toISOString().split('T')[0];
+    const dqsEndDateStr = today;
+
+    const minDate = dateParam < dqsStartDateStr ? dateParam : dqsStartDateStr;
+    const maxDate = dateParam > dqsEndDateStr ? dateParam : dqsEndDateStr;
+
+    // Fetch everything in parallel to drastically speed up the dashboard
+    const [
+      { data: profile },
+      { data: goal },
+      { data: entries }
+    ] = await Promise.all([
+      supabaseAdmin.from('profiles').select('*').eq('id', userId).single(),
+      supabaseAdmin.from('goals').select('*').eq('user_id', userId).eq('is_active', true).single(),
+      supabaseAdmin
+        .from('diary_entries')
+        .select(`
+          id,
+          entry_date,
+          diary_items (
+            nutrition_snapshot,
+            food_name_logged
+          )
+        `)
+        .eq('user_id', userId)
+        .gte('entry_date', minDate)
+        .lte('entry_date', maxDate)
+    ]);
 
     let targets = { calories: 2000, protein: 150, fat: 70, carbohydrates: 200 }; // Default
 
@@ -36,39 +66,6 @@ export async function GET(request: Request) {
         carbohydrates: goal.carbs_override_g || calculated.carbsGrams
       };
     }
-
-    // 2. Fetch today's diary entries and calculate totals
-    const today = new Date().toISOString().split('T')[0];
-    const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get('date') || today;
-
-    // Diet Quality Score is always for the "present week" (ending today)
-    const dqsEndDate = new Date(today);
-    const dqsStartDate = new Date(dqsEndDate);
-    dqsStartDate.setDate(dqsStartDate.getDate() - 6);
-
-    const dqsStartDateStr = dqsStartDate.toISOString().split('T')[0];
-    const dqsEndDateStr = today;
-
-    // We need to fetch entries for both the selected dateParam (for nutrition score)
-    // AND the 7 days up to today (for diet quality score)
-    // To do this efficiently, we fetch from min(dateParam, dqsStartDateStr) to max(dateParam, dqsEndDateStr)
-    const minDate = dateParam < dqsStartDateStr ? dateParam : dqsStartDateStr;
-    const maxDate = dateParam > dqsEndDateStr ? dateParam : dqsEndDateStr;
-
-    const { data: entries } = await supabaseAdmin
-      .from('diary_entries')
-      .select(`
-        id,
-        entry_date,
-        diary_items (
-          nutrition_snapshot,
-          food_name_logged
-        )
-      `)
-      .eq('user_id', userId)
-      .gte('entry_date', minDate)
-      .lte('entry_date', maxDate);
 
     let totalCaloriesLogged = 0;
     let totalProteinLogged = 0;
