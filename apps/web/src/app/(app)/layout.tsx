@@ -10,8 +10,21 @@ export default function AppLayout({
   return (
     <div className="min-h-screen bg-cream-bg text-on-surface font-body-md overflow-x-hidden flex flex-col">
       <DevBypassBanner />
-
-
+      {/* Top Navigation Bar */}
+      <nav className="bg-cream-bg shadow-sm sticky top-0 z-50 h-16 flex items-center shrink-0">
+        <div className="flex justify-between items-center w-full px-container-padding max-w-[1200px] mx-auto">
+          <div className="font-headline-md font-bold text-primary">SavorAI</div>
+          
+          <div className="flex items-center gap-4">
+            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
+              settings
+            </button>
+            <div className="w-8 h-8 rounded-full bg-mint-surface overflow-hidden border border-outline-variant flex items-center justify-center text-primary font-bold">
+              U
+            </div>
+          </div>
+        </div>
+      </nav>
       <div className="max-w-[1200px] mx-auto px-gutter py-gutter lg:flex lg:gap-gutter flex-1 w-full">
         {/* Sidebar (Desktop) */}
         <aside className="hidden lg:flex flex-col h-[calc(100vh-80px)] py-gutter sticky top-20 w-64 bg-mint-surface rounded-r-xl shadow-md shrink-0">
