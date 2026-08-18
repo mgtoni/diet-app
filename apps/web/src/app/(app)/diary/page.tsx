@@ -52,9 +52,9 @@ export default function DiaryPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6 pb-24 font-sans selection:bg-emerald-500/30">
-      <header className="mb-6 flex justify-between items-center sticky top-0 bg-gray-950/80 backdrop-blur-md py-4 z-10 border-b border-gray-900">
-        <Link href="/dashboard" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-900 hover:bg-gray-800 transition-colors border border-gray-800">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+      <header className="mb-6 relative flex justify-center items-center sticky top-0 bg-gray-950/80 backdrop-blur-md py-4 z-10 border-b border-gray-900 min-h-[72px]">
+        <Link href="/dashboard" className="absolute left-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-900 hover:bg-gray-800 transition-colors border border-gray-800">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </Link>
         <div className="flex items-center gap-4 bg-gray-900 rounded-2xl p-1 border border-gray-800">
           <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-400 hover:text-white transition-colors">
