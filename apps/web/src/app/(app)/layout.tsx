@@ -10,36 +10,7 @@ export default function AppLayout({
   return (
     <div className="min-h-screen bg-cream-bg text-on-surface font-body-md overflow-x-hidden flex flex-col">
       <DevBypassBanner />
-      {/* Top Navigation Bar */}
-      <nav className="bg-cream-bg shadow-sm sticky top-0 z-50 h-16 flex items-center shrink-0">
-        <div className="flex justify-between items-center w-full px-container-padding max-w-[1200px] mx-auto">
-          <div className="font-headline-md font-bold text-primary">SavorAI</div>
-          
-          <div className="hidden md:flex gap-8 items-center">
-            <Link href="/dashboard" className="text-primary border-b-2 border-primary pb-1 font-label-md hover:text-primary transition-colors active:scale-95 duration-200">
-              Dashboard
-            </Link>
-            <Link href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors active:scale-95 duration-200">
-              Diary
-            </Link>
-            <Link href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors active:scale-95 duration-200">
-              Recipes
-            </Link>
-            <Link href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors active:scale-95 duration-200">
-              AI Coach
-            </Link>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
-              settings
-            </button>
-            <div className="w-8 h-8 rounded-full bg-mint-surface overflow-hidden border border-outline-variant flex items-center justify-center text-primary font-bold">
-              U
-            </div>
-          </div>
-        </div>
-      </nav>
+
 
       <div className="max-w-[1200px] mx-auto px-gutter py-gutter lg:flex lg:gap-gutter flex-1 w-full">
         {/* Sidebar (Desktop) */}
@@ -54,7 +25,7 @@ export default function AppLayout({
               <span className="material-symbols-outlined">dashboard</span>
               <span className="font-label-md">Dashboard</span>
             </Link>
-            <Link href="#" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-full transition-all">
+            <Link href="/diary" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-full transition-all">
               <span className="material-symbols-outlined">menu_book</span>
               <span className="font-label-md">Diary</span>
             </Link>
@@ -95,7 +66,7 @@ export default function AppLayout({
           <span className="material-symbols-outlined">home</span>
           <span className="font-label-md">Home</span>
         </Link>
-        <Link href="#" className="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 transition-colors">
+        <Link href="/diary" className="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 transition-colors">
           <span className="material-symbols-outlined">history_edu</span>
           <span className="font-label-md">Diary</span>
         </Link>
