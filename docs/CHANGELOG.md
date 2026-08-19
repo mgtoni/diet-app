@@ -27,3 +27,13 @@ This document tracks all major features, architectural decisions, and milestones
   - Built a Next.js POST API route at `api/webhooks/supabase/route.ts`.
   - Created a native PostgreSQL trigger using `pg_net` directly on the Supabase `foods` table.
   - *Result:* Anytime a new, valid item is fetched from Open Food Facts and inserted into Supabase, the trigger automatically fires an HTTP POST request to Vercel, syncing the record into Meilisearch for ultra-fast subsequent lookups.
+
+## August 19, 2026 - AI Coach Integration & Dashboard Enhancements
+**Status:** Completed
+
+- **AI Abstraction Layer:** Implemented AIProvider interface and AICoachService for agnostic LLM integration.
+- **Mock AI Provider:** Added MockAIProvider for testing daily and weekly insights without API keys.
+- **Dashboard UI:** Expanded dashboard to show Metabolic Profile (goal, activity level, dietary preferences). Added Daily and Weekly AI Insight cards.
+- **Premium Hooks:** Implemented UI blurring and upsell calls-to-action on AI insights for free-tier users.
+- **Schema Updates:** Added ctivity_level and pregnancy_status to profiles, and created i_insights table for caching AI outputs.
+- **Dynamic Scoring:** Updated ScoringService to conditionally override Diet Quality Score penalties based on user's dietary preferences (e.g. Keto, Vegan).

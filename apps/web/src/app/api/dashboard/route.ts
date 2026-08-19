@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { scoringService, NutritionEngine, UserMetrics } from '@diet-app/core';
+import { scoringService, NutritionEngine, UserMetrics, aiCoachService, featureFlagService, NutritionContext } from '@diet-app/core';
 import { createClient } from '@/utils/supabase/server';
 import { supabaseAdmin } from '@/utils/supabase/admin';
 
@@ -29,7 +29,10 @@ export async function GET(request: Request) {
     const [
       { data: profile },
       { data: goal },
-      { data: entries }
+      { data: entries },
+      { data: dietaryPrefsData },
+      { data: healthCondsData },
+      { data: aiInsightDailyData }
     ] = await Promise.all([
       supabaseAdmin.from('profiles').select('*').eq('id', userId).single(),
       supabaseAdmin.from('goals').select('*').eq('user_id', userId).eq('is_active', true).single(),
@@ -45,8 +48,17 @@ export async function GET(request: Request) {
         `)
         .eq('user_id', userId)
         .gte('entry_date', minDate)
-        .lte('entry_date', maxDate)
+        .lte('entry_date', maxDate),
+      supabaseAdmin.from('dietary_preferences').select('preference_name').eq('user_id', userId),
+      supabaseAdmin.from('health_conditions').select('condition_name').eq('user_id', userId),
+      supabaseAdmin.from('ai_insights').select('*').eq('user_id', userId).eq('date', dateParam).eq('insight_type', 'daily').maybeSingle()
     ]);
+
+    const dietaryPreferences = dietaryPrefsData?.map(p => p.preference_name) || [];
+    const healthConditions = healthCondsData?.map(h => h.condition_name) || [];
+    
+    // Check premium status
+    const isPremium = await featureFlagService.hasAccess(userId, 'premium_daily_review');
 
     let targets = { calories: 2000, protein: 150, fat: 70, carbohydrates: 200 }; // Default
 
@@ -56,7 +68,8 @@ export async function GET(request: Request) {
         heightCm: Number(profile.height_cm) || 170,
         age: profile.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : 30,
         sex: profile.biological_sex || 'male',
-        activityLevel: 'sedentary',
+        activityLevel: profile.activity_level || 'sedentary',
+        pregnancyStatus: profile.pregnancy_status || 'none',
         goal: goal.goal_type || 'maintain'
       };
       const calculated = NutritionEngine.calculateTargets(metrics);
@@ -121,7 +134,9 @@ export async function GET(request: Request) {
     const dietQualityResult = scoringService.calculateDietQualityScore(
       foodsLoggedPast7Days, 
       nutritionScoreResult.breakdown.macroBalance,
-      30
+      30,
+      dietaryPreferences,
+      healthConditions
     );
 
     // Upsert to daily_scores_rollup ONLY if we are looking at today, otherwise don't overwrite history
@@ -135,7 +150,53 @@ export async function GET(request: Request) {
       }, { onConflict: 'user_id,date' });
     }
 
+    // Generate AI Insights if they don't exist
+    let dailyInsightText = aiInsightDailyData?.content;
+    if (!dailyInsightText) {
+      const context: NutritionContext = {
+        goal: goal?.goal_type || 'maintain',
+        dietaryPreferences,
+        healthConditions,
+        macroTargets: {
+          calories: targets.calories,
+          protein: targets.protein,
+          fat: targets.fat,
+          carbs: targets.carbohydrates
+        },
+        consumed: {
+          calories: totalCaloriesLogged,
+          protein: totalProteinLogged,
+          fat: totalFatLogged,
+          carbs: totalCarbsLogged
+        },
+        loggedFoods: foodsLoggedSelectedDay,
+        dietQualityScore: dietQualityResult.score
+      };
+      dailyInsightText = await aiCoachService.getDailyInsight(context);
+      
+      // Save it to database asynchronously so we don't block
+      supabaseAdmin.from('ai_insights').insert({
+        user_id: userId,
+        date: dateParam,
+        insight_type: 'daily',
+        content: dailyInsightText
+      }).then(({ error }) => {
+        if (error) console.error('Failed to save AI insight:', error);
+      });
+    }
+
     const dashboardData = {
+      isPremium,
+      profileSummary: {
+        goal: goal?.goal_type || 'maintain',
+        activityLevel: profile?.activity_level || 'sedentary',
+        dietaryPreferences,
+        pregnancyStatus: profile?.pregnancy_status || 'none'
+      },
+      aiInsights: {
+        daily: dailyInsightText,
+        weekly: null // To be implemented via a separate endpoint or on demand
+      },
       nutritionScore: nutritionScoreResult.score,
       dietQualityScore: dietQualityResult.score,
       calorieTarget: targets.calories,

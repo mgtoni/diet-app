@@ -27,6 +27,8 @@ export default function OnboardingDietPage() {
             biological_sex: state.biologicalSex,
             height_cm: state.heightCm,
             weight_kg: state.weightKg,
+            activity_level: state.activityLevel,
+            pregnancy_status: state.pregnancyStatus || 'none',
           })
           .eq('id', userId);
 

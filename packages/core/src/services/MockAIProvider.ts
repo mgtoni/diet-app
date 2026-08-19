@@ -1,0 +1,43 @@
+import { AIProvider, NutritionContext, AIRecommendation } from './AIProvider';
+
+export class MockAIProvider implements AIProvider {
+  async generateSummary(context: NutritionContext, type: 'daily' | 'weekly'): Promise<string> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    if (type === 'daily') {
+      let insight = "Here is your daily AI review. ";
+      
+      const calorieDiff = context.consumed.calories - context.macroTargets.calories;
+      if (Math.abs(calorieDiff) < 100) {
+        insight += "You nailed your calorie target today! Excellent work staying disciplined. ";
+      } else if (calorieDiff > 0) {
+        insight += `You're about ${Math.round(calorieDiff)} calories over your target. That's okay, consistency over perfection! `;
+      } else {
+        insight += `You're under your calorie target by ${Math.round(Math.abs(calorieDiff))} calories. Make sure you're eating enough to fuel your body, especially since your goal is ${context.goal.replace(/_/g, ' ')}. `;
+      }
+
+      if (context.dietQualityScore >= 80) {
+        insight += "Your food choices were highly nutritious, packed with micronutrients and fiber.";
+      } else if (context.dietQualityScore >= 50) {
+        insight += "Your diet quality was moderate today. Try adding a bit more whole foods tomorrow.";
+      } else {
+        insight += "Your diet quality took a hit today. Let's focus on adding some vibrant vegetables to your meals tomorrow!";
+      }
+      
+      return insight;
+    } else {
+      return `Looking back at your week, you've shown great dedication to your ${context.goal.replace(/_/g, ' ')} goal. You maintained a strong average Diet Quality Score of ${Math.round(context.dietQualityScore)}. Your protein intake was very consistent, which is fantastic for muscle retention. As we move into next week, consider expanding your food variety—maybe try incorporating a new leafy green or a different source of healthy fats. Keep up the momentum!`;
+    }
+  }
+
+  async generateRecommendations(context: NutritionContext): Promise<AIRecommendation[]> {
+    return [
+      {
+        title: "Boost your fiber",
+        description: "You're a little low on fiber today. Try adding a handful of raspberries or some chia seeds to your next meal.",
+        actionableStep: "Add 1 tbsp of chia seeds to water or yogurt."
+      }
+    ];
+  }
+}

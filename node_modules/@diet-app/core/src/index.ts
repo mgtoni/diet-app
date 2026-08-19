@@ -19,3 +19,5 @@ export type { SwapSuggestion, MealSuggestion } from './services/RecommendationEn
 export { featureFlagService, FeatureFlagService } from './services/FeatureFlagService';
 export type { FeatureFlag } from './services/FeatureFlagService';
 
+export { aiCoachService, AICoachService } from './services/AICoachService';
+export type { AIProvider, NutritionContext, AIRecommendation, AIPrompt } from './services/AIProvider';

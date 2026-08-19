@@ -47,7 +47,7 @@ export default function DashboardPage() {
     );
   }
 
-  const { nutritionScore, dietQualityScore, calorieTarget, caloriesConsumed, macros } = data;
+  const { nutritionScore, dietQualityScore, calorieTarget, caloriesConsumed, macros, isPremium, profileSummary, aiInsights } = data;
   const remaining = calorieTarget - caloriesConsumed;
   const progress = Math.min((caloriesConsumed / calorieTarget) * 100, 100);
 
@@ -79,6 +79,52 @@ export default function DashboardPage() {
       </header>
 
       <div className={`transition-opacity duration-300 ${isRefetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        
+        {/* Metabolic Profile */}
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+          <div>
+            <h2 className="text-gray-900 font-bold text-lg mb-1">Your Metabolic Profile</h2>
+            <p className="text-gray-500 text-sm">Targets are customized based on these settings.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full capitalize border border-emerald-200">
+              Goal: {profileSummary?.goal?.replace(/_/g, ' ')}
+            </span>
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full capitalize border border-blue-200">
+              Activity: {profileSummary?.activityLevel?.replace(/_/g, ' ')}
+            </span>
+            {profileSummary?.pregnancyStatus !== 'none' && (
+              <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full capitalize">
+                {profileSummary?.pregnancyStatus}
+              </span>
+            )}
+            {profileSummary?.dietaryPreferences?.map((pref: string) => (
+              <span key={pref} className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full capitalize">
+                {pref}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="h-full">
+            <AIInsightCard 
+              title="Daily AI Insight" 
+              content={aiInsights?.daily} 
+              isPremium={isPremium} 
+              type="daily" 
+            />
+          </div>
+          <div className="h-full">
+            <AIInsightCard 
+              title="Weekly AI Review" 
+              content={aiInsights?.weekly || "Your weekly review will be available on Sunday. Keep logging your meals!"} 
+              isPremium={isPremium} 
+              type="weekly" 
+            />
+          </div>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-1 h-full">
           <ScoreCard 
@@ -135,6 +181,51 @@ export default function DashboardPage() {
           Open Food Diary
         </Link>
       </div>
+      </div>
+    </div>
+  );
+}
+
+function AIInsightCard({ title, content, isPremium, type }: { title: string, content: string, isPremium: boolean, type: 'daily' | 'weekly' }) {
+  if (!content) return null;
+  
+  // For non-premium, take the first sentence only.
+  const sentences = content.split(/(?<=[.!?])\s+/);
+  const previewText = sentences[0] || content;
+  const hiddenText = sentences.slice(1).join(' ');
+
+  return (
+    <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm relative overflow-hidden h-full flex flex-col group">
+      <div className={`absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 rounded-full blur-3xl opacity-20 transition-opacity duration-700 ${type === 'daily' ? 'bg-emerald-500 group-hover:opacity-40' : 'bg-purple-500 group-hover:opacity-40'}`}></div>
+      
+      <div className="flex items-center gap-2 mb-4 relative z-10">
+        {type === 'daily' ? (
+          <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        ) : (
+          <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        )}
+        <h2 className="text-gray-900 font-bold">{title}</h2>
+      </div>
+      
+      <div className="relative flex-1 z-10 flex flex-col">
+        <p className="text-gray-700 text-sm leading-relaxed mb-2 transition-all duration-300">
+          {isPremium ? content : previewText}
+        </p>
+        
+        {!isPremium && hiddenText && (
+          <div className="relative mt-2 flex-1 flex flex-col">
+            <p className="text-gray-700 text-sm leading-relaxed blur-[4px] select-none opacity-40">
+              {hiddenText.length > 100 ? hiddenText : hiddenText + " This is some extra placeholder text to make the blur look longer and more enticing to the user so they see there is a lot of valuable information here."}
+            </p>
+            <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/50 to-transparent flex flex-col items-center justify-end pb-4">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Premium Feature</span>
+              <button className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
+                Unlock AI Coach
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

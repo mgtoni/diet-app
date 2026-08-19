@@ -88,7 +88,9 @@ export class ScoringService {
   calculateDietQualityScore(
     foodsLoggedPast7Days: Food[],
     macroBalanceScore: number, // Passed from Nutrition Score (can be an average of last 7 days)
-    dailyFibreTarget: number = 30 // grams
+    dailyFibreTarget: number = 30, // grams
+    dietaryPreferences: string[] = [],
+    healthConditions: string[] = []
   ): { score: number; breakdown: DietQualityBreakdown } {
     let fibreScore = 0;
     let microScore = 0;
@@ -124,7 +126,22 @@ export class ScoringService {
       const matched = matchFoodToTaxonomy(food.name, food.categories);
       matched.forEach(c => uniqueCategories.add(c));
     }
-    varietyScore = Math.min(20, uniqueCategories.size); // 1 point per category, max 20
+    
+    let targetVariety = 20;
+    // Adjust target variety for restrictive diets
+    if (dietaryPreferences.includes('Vegan') || dietaryPreferences.includes('Vegetarian')) {
+      targetVariety = 16; // Less animal product categories expected
+    } else if (dietaryPreferences.includes('Keto') || dietaryPreferences.includes('Carnivore')) {
+      targetVariety = 12; // Far fewer categories expected
+    }
+    
+    varietyScore = Math.min(20, (uniqueCategories.size / targetVariety) * 20);
+
+    // Adjust fiber expectations if Keto
+    if (dietaryPreferences.includes('Keto') || dietaryPreferences.includes('Carnivore')) {
+       // Reduce fiber penalty for very low carb diets where hitting 30g is extremely difficult
+       fibreScore = Math.min(20, (averageDailyFibre / (dailyFibreTarget * 0.5)) * 20);
+    }
 
     // 4. Processed Food Ratio (20 points)
     let processedCount = 0;
