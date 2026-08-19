@@ -28,7 +28,7 @@ export default function AICoachPage() {
       const insightsRes = await fetch('/api/dashboard');
       if (insightsRes.ok) {
         const insightsData = await insightsRes.json();
-        setAiInsights(insightsData.aiInsights);
+        setAiInsights(insightsData.data?.aiInsights || null);
       }
 
       // Fetch Chat History
