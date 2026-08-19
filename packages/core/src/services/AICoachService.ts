@@ -44,12 +44,7 @@ export class AICoachService {
   }
 
   async parseMealText(text: string): Promise<any[]> {
-    try {
-      return await this.provider.parseMealText(text);
-    } catch (error) {
-      console.error('Error parsing meal text:', error);
-      return [];
-    }
+    return await this.provider.parseMealText(text);
   }
 }
 
