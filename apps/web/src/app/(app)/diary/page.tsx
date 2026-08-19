@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import FoodSearch from '@/components/food-search/FoodSearch';
+import { logMealWithAI } from '@/app/actions/aiActions';
 
 const MEAL_SLOTS = [
   { id: 'breakfast', name: 'Breakfast', icon: '🌅' },
@@ -216,33 +217,13 @@ export default function DiaryPage() {
               onClick={async () => {
                 setAiLoading(true);
                 try {
-                  const res = await fetch(`/api/diary/ai-log`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: aiText, date })
-                  });
-                  const json = await res.json();
-                  if (json.success && json.data.length > 0) {
-                    // Send parsed items to diary sequentially
-                    for (const item of json.data) {
-                      await fetch(`/api/diary/${date}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          foodId: null,
-                          foodName: item.foodName,
-                          mealSlot: showAILog,
-                          quantity: item.quantity,
-                          servingSizeId: item.servingName || 'serving',
-                          nutritionSnapshot: item.nutritionSnapshot
-                        })
-                      });
-                    }
+                  const res = await logMealWithAI(aiText, date, showAILog!);
+                  if (res.success) {
                     setShowAILog(null);
                     setAiText('');
                     fetchDiaryData();
                   } else {
-                    alert('Could not parse meal. Please try again.');
+                    alert('Could not parse meal: ' + res.error);
                   }
                 } catch (e) {
                   console.error(e);

@@ -1,13 +1,19 @@
 import { AIProvider, NutritionContext, ChatMessage } from './AIProvider';
 import { MockAIProvider } from './MockAIProvider';
+import { GeminiAIProvider } from './GeminiAIProvider';
 
 export class AICoachService {
   private provider: AIProvider;
 
   constructor() {
-    // For now, we use the MockAIProvider. 
-    // In the future, this can be easily swapped for DeepSeek or Gemini based on env vars.
-    this.provider = new MockAIProvider();
+    // If the GEMINI_API_KEY is provided in the environment, use the real Gemini API.
+    // Otherwise, fallback to the Mock Provider.
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      this.provider = new GeminiAIProvider(apiKey);
+    } else {
+      this.provider = new MockAIProvider();
+    }
   }
 
   async getDailyInsight(context: NutritionContext): Promise<string> {
