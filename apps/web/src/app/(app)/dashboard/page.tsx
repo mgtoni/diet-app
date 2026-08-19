@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
+  const [premiumToggle, setPremiumToggle] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!data) setLoading(true);
@@ -50,6 +51,8 @@ export default function DashboardPage() {
   const { nutritionScore, dietQualityScore, calorieTarget, caloriesConsumed, macros, isPremium, profileSummary, aiInsights } = data;
   const remaining = calorieTarget - caloriesConsumed;
   const progress = Math.min((caloriesConsumed / calorieTarget) * 100, 100);
+  
+  const displayPremium = premiumToggle !== null ? premiumToggle : isPremium;
 
   return (
     <div className="min-h-screen bg-transparent text-gray-900 p-6 pb-24 font-sans selection:bg-emerald-500/30">
@@ -60,21 +63,27 @@ export default function DashboardPage() {
           </h1>
           <p className="text-gray-600 text-sm mt-1">Your daily nutrition overview</p>
         </div>
-        
-        <div className="flex items-center gap-4 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm">
-          <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <span className="font-semibold w-24 text-center text-sm md:text-base text-gray-900">
-            {isToday ? 'Today' : date}
-          </span>
-          <button 
-            onClick={() => handleDateChange(1)} 
-            disabled={isToday}
-            className={`p-2 transition-colors ${isToday ? 'text-gray-400 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900'}`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-          </button>
+        <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
+          <div className="flex items-center gap-2 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm text-sm">
+             <span className="text-gray-600 font-medium pl-2">View as:</span>
+             <button onClick={() => setPremiumToggle(false)} className={`px-3 py-1 rounded-full transition-colors ${displayPremium === false ? 'bg-gray-800 text-white shadow-sm' : 'hover:bg-gray-200 text-gray-700'}`}>Free</button>
+             <button onClick={() => setPremiumToggle(true)} className={`px-3 py-1 rounded-full transition-colors ${displayPremium === true ? 'bg-emerald-500 text-white shadow-sm' : 'hover:bg-gray-200 text-gray-700'}`}>Premium</button>
+          </div>
+          <div className="flex items-center gap-4 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm">
+            <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <span className="font-semibold w-24 text-center text-sm md:text-base text-gray-900">
+              {isToday ? 'Today' : date}
+            </span>
+            <button 
+              onClick={() => handleDateChange(1)} 
+              disabled={isToday}
+              className={`p-2 transition-colors ${isToday ? 'text-gray-400 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900'}`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -106,25 +115,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* AI Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="h-full">
-            <AIInsightCard 
-              title="Daily AI Insight" 
-              content={aiInsights?.daily} 
-              isPremium={isPremium} 
-              type="daily" 
-            />
-          </div>
-          <div className="h-full">
-            <AIInsightCard 
-              title="Weekly AI Review" 
-              content={aiInsights?.weekly || "Your weekly review will be available on Sunday. Keep logging your meals!"} 
-              isPremium={isPremium} 
-              type="weekly" 
-            />
-          </div>
-        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-1 h-full">
           <ScoreCard 
@@ -176,6 +167,27 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* AI Insights */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="h-full">
+          <AIInsightCard 
+            title="Daily AI Insight" 
+            content={aiInsights?.daily} 
+            isPremium={displayPremium} 
+            type="daily" 
+          />
+        </div>
+        <div className="h-full">
+          <AIInsightCard 
+            title="Weekly AI Review" 
+            content={aiInsights?.weekly || "Your weekly review will be available on Sunday. Keep logging your meals!"} 
+            isPremium={displayPremium} 
+            type="weekly" 
+          />
+        </div>
+      </div>
+
+
       <div className="flex gap-4">
         <Link href="/diary" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-900 font-bold py-4 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-1 text-center">
           Open Food Diary
@@ -195,16 +207,23 @@ function AIInsightCard({ title, content, isPremium, type }: { title: string, con
   const hiddenText = sentences.slice(1).join(' ');
 
   return (
-    <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm relative overflow-hidden h-full flex flex-col group">
+    <Link href="/ai-coach" className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm relative overflow-hidden h-full flex flex-col group hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer block">
       <div className={`absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 rounded-full blur-3xl opacity-20 transition-opacity duration-700 ${type === 'daily' ? 'bg-emerald-500 group-hover:opacity-40' : 'bg-purple-500 group-hover:opacity-40'}`}></div>
       
-      <div className="flex items-center gap-2 mb-4 relative z-10">
-        {type === 'daily' ? (
-          <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        ) : (
-          <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className="flex items-center gap-2">
+          {type === 'daily' ? (
+            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+          ) : (
+            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          )}
+          <h2 className="text-gray-900 font-bold">{title}</h2>
+        </div>
+        {isPremium && (
+          <span className="text-xs font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+            See more <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+          </span>
         )}
-        <h2 className="text-gray-900 font-bold">{title}</h2>
       </div>
       
       <div className="relative flex-1 z-10 flex flex-col">
@@ -219,15 +238,15 @@ function AIInsightCard({ title, content, isPremium, type }: { title: string, con
             </p>
             <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/50 to-transparent flex flex-col items-center justify-end pb-4">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Premium Feature</span>
-              <button className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2">
+              <div className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold py-2 px-6 rounded-full shadow-lg transition-transform transform group-hover:scale-105 flex items-center gap-2">
                 <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
                 Unlock AI Coach
-              </button>
+              </div>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 

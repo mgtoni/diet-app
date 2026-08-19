@@ -46,7 +46,7 @@ export default function AppLayout({
               <span className="material-symbols-outlined">restaurant</span>
               <span className="font-label-md">Recipes</span>
             </Link>
-            <Link href="#" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-full transition-all">
+            <Link href="/ai-coach" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-variant rounded-full transition-all">
               <span className="material-symbols-outlined">smart_toy</span>
               <span className="font-label-md">AI Coach</span>
             </Link>
@@ -86,7 +86,7 @@ export default function AppLayout({
           <span className="material-symbols-outlined">history_edu</span>
           <span className="font-label-md">Diary</span>
         </Link>
-        <Link href="#" className="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 transition-colors">
+        <Link href="/ai-coach" className="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 transition-colors">
           <span className="material-symbols-outlined">psychology</span>
           <span className="font-label-md">Coach</span>
         </Link>
