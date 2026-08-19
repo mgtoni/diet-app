@@ -64,4 +64,75 @@ export class MockAIProvider implements AIProvider {
 
     return "That's a great question. As your AI Coach, I'd recommend focusing on whole foods and staying hydrated. Let me know if you want to discuss your specific macro targets or recent meals!";
   }
+
+  async parseMealText(text: string): Promise<any[]> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const lowerText = text.toLowerCase();
+    const items = [];
+
+    if (lowerText.includes('coffee')) {
+      items.push({
+        foodName: "Black Coffee",
+        quantity: 1,
+        servingName: "cup",
+        grams: 240,
+        nutritionSnapshot: {
+          calories: 5,
+          protein: 0.3,
+          carbohydrates: 0,
+          fat: 0
+        }
+      });
+    }
+
+    if (lowerText.includes('cheesecake') || lowerText.includes('cheese cake')) {
+      items.push({
+        foodName: "Cheesecake",
+        quantity: 1,
+        servingName: "slice",
+        grams: 125,
+        nutritionSnapshot: {
+          calories: 401,
+          protein: 7.1,
+          carbohydrates: 32,
+          fat: 28
+        }
+      });
+    }
+    
+    if (lowerText.includes('egg') || lowerText.includes('eggs')) {
+      items.push({
+        foodName: "Large Egg",
+        quantity: 2,
+        servingName: "medium",
+        grams: 100,
+        nutritionSnapshot: {
+          calories: 143,
+          protein: 12.6,
+          carbohydrates: 0.7,
+          fat: 9.5
+        }
+      });
+    }
+
+    if (items.length === 0) {
+      // Generic fallback
+      items.push({
+        foodName: "Generic Meal",
+        quantity: 1,
+        servingName: "serving",
+        grams: 300,
+        nutritionSnapshot: {
+          calories: 350,
+          protein: 20,
+          carbohydrates: 40,
+          fat: 12
+        }
+      });
+    }
+
+    return items;
+  }
 }

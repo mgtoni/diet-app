@@ -39,4 +39,9 @@ export interface AIProvider {
    * Generates structured JSON recommendations
    */
   generateRecommendations(context: NutritionContext): Promise<AIRecommendation[]>;
+
+  /**
+   * Parses free-text meal input into structured food logs
+   */
+  parseMealText(text: string): Promise<any[]>;
 }

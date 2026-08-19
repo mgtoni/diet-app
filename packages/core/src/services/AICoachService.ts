@@ -36,6 +36,15 @@ export class AICoachService {
       return "I'm having trouble connecting right now. Please try again later.";
     }
   }
+
+  async parseMealText(text: string): Promise<any[]> {
+    try {
+      return await this.provider.parseMealText(text);
+    } catch (error) {
+      console.error('Error parsing meal text:', error);
+      return [];
+    }
+  }
 }
 
 export const aiCoachService = new AICoachService();
