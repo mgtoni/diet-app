@@ -1,4 +1,4 @@
-import { AIProvider, NutritionContext } from './AIProvider';
+import { AIProvider, NutritionContext, ChatMessage } from './AIProvider';
 import { MockAIProvider } from './MockAIProvider';
 
 export class AICoachService {
@@ -25,6 +25,15 @@ export class AICoachService {
     } catch (error) {
       console.error('Error generating weekly review:', error);
       return "I couldn't generate a weekly review right now. Keep up the good work!";
+    }
+  }
+
+  async chat(history: ChatMessage[], context: NutritionContext): Promise<string> {
+    try {
+      return await this.provider.generateChatResponse(history, context);
+    } catch (error) {
+      console.error('Error generating chat response:', error);
+      return "I'm having trouble connecting right now. Please try again later.";
     }
   }
 }

@@ -19,12 +19,22 @@ export interface NutritionContext {
   dietQualityScore: number;
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 export interface AIProvider {
   /**
    * Generates a generic text summary/review
    */
   generateSummary(context: NutritionContext, type: 'daily' | 'weekly'): Promise<string>;
   
+  /**
+   * Generates a chat response based on conversation history and current nutrition context.
+   */
+  generateChatResponse(history: ChatMessage[], context: NutritionContext): Promise<string>;
+
   /**
    * Generates structured JSON recommendations
    */

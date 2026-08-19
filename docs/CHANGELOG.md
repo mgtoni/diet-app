@@ -37,3 +37,8 @@ This document tracks all major features, architectural decisions, and milestones
 - **Premium Hooks:** Implemented UI blurring and upsell calls-to-action on AI insights for free-tier users.
 - **Schema Updates:** Added ctivity_level and pregnancy_status to profiles, and created i_insights table for caching AI outputs.
 - **Dynamic Scoring:** Updated ScoringService to conditionally override Diet Quality Score penalties based on user's dietary preferences (e.g. Keto, Vegan).
+
+- **AI Coach Page:** Built a dedicated /ai-coach page with a continuous, WhatsApp-style conversational interface.
+- **Continuous Context Injection:** Built POST /api/chat which injects user's daily food logs, current macro targets, goals, and recent 10 messages seamlessly into the AI provider payload without restarting the thread.
+- **UI Components:** Extracted AIInsightCard to a shared component and added quick-reply 'Discuss this' functionality.
+- **Chat Persistence:** Created the chat_messages table migration with Row Level Security to securely persist long-term conversation history for each user.

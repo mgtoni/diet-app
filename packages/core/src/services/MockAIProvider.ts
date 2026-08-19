@@ -40,4 +40,28 @@ export class MockAIProvider implements AIProvider {
       }
     ];
   }
+
+  async generateChatResponse(history: any[], context: NutritionContext): Promise<string> {
+    // Mock a response based on the last user message
+    const lastMessage = history[history.length - 1];
+    if (!lastMessage || lastMessage.role !== 'user') {
+      return "How can I help you with your nutrition today?";
+    }
+
+    const input = lastMessage.content.toLowerCase();
+    
+    if (input.includes('protein')) {
+      return `Based on your profile, you've consumed ${context.consumed.protein}g of protein out of your ${context.macroTargets.protein}g target. To increase this, try adding Greek yogurt, chicken breast, or lentils to your next meal.`;
+    }
+    
+    if (input.includes('calories') || input.includes('target')) {
+      return `Your daily calorie target is ${context.macroTargets.calories} kcal. You have consumed ${context.consumed.calories} kcal so far. Keep an eye on portion sizes if you want to stay within your limits!`;
+    }
+
+    if (input.includes('daily insight') || input.includes('weekly review')) {
+      return `I'm glad you asked about your review! Your Diet Quality Score is currently ${context.dietQualityScore}/100. Let's focus on increasing your fiber and food variety to improve this.`;
+    }
+
+    return "That's a great question. As your AI Coach, I'd recommend focusing on whole foods and staying hydrated. Let me know if you want to discuss your specific macro targets or recent meals!";
+  }
 }
