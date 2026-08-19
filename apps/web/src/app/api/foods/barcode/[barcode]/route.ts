@@ -3,7 +3,7 @@ import { FoodService } from '@diet-app/core';
 import { supabase } from '@/utils/supabase/client';
 
 export async function GET(request: Request, { params }: { params: Promise<{ barcode: string }> }) {
-  const foodService = new FoodService(supabase);
+  const foodService = new FoodService(supabase as any);
   try {
     const { barcode } = await params;
     if (!barcode) {

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, Schema, Type } from '@google/generative-ai';
+import { GoogleGenerativeAI, Schema, SchemaType } from '@google/generative-ai';
 import { AIProvider, AIRecommendation, ChatMessage, NutritionContext } from './AIProvider';
 import { promptTemplateService } from './PromptTemplateService';
 
@@ -62,13 +62,13 @@ export class GeminiAIProvider implements AIProvider {
     });
 
     const schema: Schema = {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          title: { type: Type.STRING },
-          description: { type: Type.STRING },
-          actionableStep: { type: Type.STRING },
+          title: { type: SchemaType.STRING },
+          description: { type: SchemaType.STRING },
+          actionableStep: { type: SchemaType.STRING },
         },
         required: ["title", "description", "actionableStep"]
       }
@@ -98,12 +98,12 @@ export class GeminiAIProvider implements AIProvider {
     });
 
     const schema: Schema = {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          foodName: { type: Type.STRING },
-          quantity: { type: Type.STRING },
+          foodName: { type: SchemaType.STRING },
+          quantity: { type: SchemaType.STRING },
         },
         required: ["foodName", "quantity"]
       }

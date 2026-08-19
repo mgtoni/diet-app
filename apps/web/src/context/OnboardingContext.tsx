@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { OnboardingState, OnboardingService } from '@diet-app/core';
+import { OnboardingState, OnboardingService } from '@diet-app/core/src/onboarding';
 
 interface OnboardingContextProps {
   state: Partial<OnboardingState>;

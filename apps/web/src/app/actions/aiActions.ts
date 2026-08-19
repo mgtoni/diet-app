@@ -21,7 +21,7 @@ export async function logMealWithAI(text: string, date: string, mealSlot: string
       throw new Error('Could not extract any food items from the description.');
     }
 
-    const foodService = new FoodService(supabaseAdmin);
+    const foodService = new FoodService(supabaseAdmin as any);
     const addedItems = [];
 
     // 2. For each entity, look it up and calculate nutrition, then insert

@@ -32,7 +32,7 @@ function getLocaleFromRequest(request: Request, searchParams: URLSearchParams): 
 
 export async function GET(request: Request) {
   // Initialize FoodService with the Next.js Supabase client
-  const foodService = new FoodService(supabaseAdmin);
+  const foodService = new FoodService(supabaseAdmin as any);
 
   try {
     const { searchParams } = new URL(request.url);
