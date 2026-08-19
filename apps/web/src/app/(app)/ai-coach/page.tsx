@@ -10,7 +10,7 @@ export default function AICoachPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [aiInsights, setAiInsights] = useState<{ daily: string; weekly: string } | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const isPremium = true;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function AICoachPage() {
       if (insightsRes.ok) {
         const insightsData = await insightsRes.json();
         setAiInsights(insightsData.aiInsights);
-        setIsPremium(insightsData.isPremium);
       }
 
       // Fetch Chat History

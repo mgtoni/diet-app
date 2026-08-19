@@ -14,11 +14,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check premium status
-    const isPremium = await featureFlagService.hasAccess(user.id, 'premium_daily_review');
-    if (!isPremium) {
-      return NextResponse.json({ error: 'Premium feature' }, { status: 403 });
-    }
+
 
     // Fetch chat history
     const { data: messages, error } = await supabase
@@ -48,11 +44,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check premium status
-    const isPremium = await featureFlagService.hasAccess(user.id, 'premium_daily_review');
-    if (!isPremium) {
-      return NextResponse.json({ error: 'Premium feature' }, { status: 403 });
-    }
+
 
     const { content } = await request.json();
     if (!content || typeof content !== 'string') {

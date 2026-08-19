@@ -10,7 +10,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
-  const [premiumToggle, setPremiumToggle] = useState<boolean | null>(null);
+
 
   useEffect(() => {
     if (!data) setLoading(true);
@@ -53,7 +53,7 @@ export default function DashboardPage() {
   const remaining = calorieTarget - caloriesConsumed;
   const progress = Math.min((caloriesConsumed / calorieTarget) * 100, 100);
   
-  const displayPremium = premiumToggle !== null ? premiumToggle : isPremium;
+  const displayPremium = true;
 
   return (
     <div className="min-h-screen bg-transparent text-gray-900 p-6 pb-24 font-sans selection:bg-emerald-500/30">
@@ -65,11 +65,6 @@ export default function DashboardPage() {
           <p className="text-gray-600 text-sm mt-1">Your daily nutrition overview</p>
         </div>
         <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
-          <div className="flex items-center gap-2 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm text-sm">
-             <span className="text-gray-600 font-medium pl-2">View as:</span>
-             <button onClick={() => setPremiumToggle(false)} className={`px-3 py-1 rounded-full transition-colors ${displayPremium === false ? 'bg-gray-800 text-white shadow-sm' : 'hover:bg-gray-200 text-gray-700'}`}>Free</button>
-             <button onClick={() => setPremiumToggle(true)} className={`px-3 py-1 rounded-full transition-colors ${displayPremium === true ? 'bg-emerald-500 text-white shadow-sm' : 'hover:bg-gray-200 text-gray-700'}`}>Premium</button>
-          </div>
           <div className="flex items-center gap-4 bg-white/50 rounded-2xl p-1 border border-gray-200 shadow-sm">
             <button onClick={() => handleDateChange(-1)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
