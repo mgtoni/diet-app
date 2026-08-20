@@ -82,7 +82,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
             calories_100g,
             protein_100g,
             carbohydrates_100g,
-            fat_100g
+            fat_100g,
+            serving_sizes (id, serving_name, weight_g)
           )
         )
       `)
@@ -110,7 +111,23 @@ export async function GET(request: Request, { params }: { params: Promise<{ date
           servingSizeId: item.serving_size_id,
           servingName: item.serving_sizes?.serving_name,
           nutritionSnapshot: item.nutrition_snapshot,
-          warnings: evalResult.warnings
+          warnings: evalResult.warnings,
+          baseFood: {
+            id: item.food_id,
+            name: item.foods?.name || foodName,
+            brand: item.foods?.brand,
+            nutrition: {
+              calories: item.foods?.calories_100g || 0,
+              protein: item.foods?.protein_100g || 0,
+              carbohydrates: item.foods?.carbohydrates_100g || 0,
+              fat: item.foods?.fat_100g || 0,
+            },
+            servingSizes: item.foods?.serving_sizes?.map((s: any) => ({
+              id: s.id,
+              servingName: s.serving_name,
+              weightG: s.weight_g
+            })) || []
+          }
         };
       }) || []
     })) || [];

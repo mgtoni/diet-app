@@ -5,17 +5,22 @@ import React, { useState, useEffect, useRef } from 'react';
 interface FoodSearchProps {
   onAdd: (food: any, inputQuantity: number, grams: number, servingSizeId?: string) => void;
   onClose: () => void;
+  initialFood?: any;
+  initialQuantity?: string;
+  initialUnit?: string;
+  isEditing?: boolean;
+  onDelete?: () => void;
 }
 
-export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
+export default function FoodSearch({ onAdd, onClose, initialFood, initialQuantity, initialUnit, isEditing, onDelete }: FoodSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [selectedFood, setSelectedFood] = useState<any | null>(null);
-  const [quantity, setQuantity] = useState<string>('100');
-  const [unit, setUnit] = useState<string>('g'); // 'g', 'oz', 'std_*', or a servingSize.id
+  const [selectedFood, setSelectedFood] = useState<any | null>(initialFood || null);
+  const [quantity, setQuantity] = useState<string>(initialQuantity || '100');
+  const [unit, setUnit] = useState<string>(initialUnit || 'g'); // 'g', 'oz', 'std_*', or a servingSize.id
 
   const standardUnits: Record<string, number> = {
     'std_tbsp': 15,
@@ -127,7 +132,7 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
   return (
     <div className="fixed inset-0 bg-white/80 backdrop-blur-xl z-50 flex flex-col p-4 animate-in fade-in duration-200">
       <header className="flex items-center gap-4 mb-6 mt-4 max-w-2xl mx-auto w-full">
-        <button onClick={selectedFood ? () => setSelectedFood(null) : onClose} className="p-2 text-gray-500 hover:text-gray-900 bg-white rounded-full transition-colors border border-gray-200 shadow-sm">
+        <button onClick={selectedFood && !isEditing ? () => setSelectedFood(null) : onClose} className="p-2 text-gray-500 hover:text-gray-900 bg-white rounded-full transition-colors border border-gray-200 shadow-sm">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
         </button>
         
@@ -184,7 +189,19 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
       ) : (
         <div className="flex-1 overflow-y-auto max-w-2xl mx-auto w-full">
           <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-xl font-bold mb-1 text-gray-900">{selectedFood.name}</h3>
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="text-xl font-bold text-gray-900">{selectedFood.name}</h3>
+              {isEditing && onDelete && (
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-xl transition-colors text-sm font-medium flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  Delete
+                </button>
+              )}
+            </div>
             <p className="text-gray-500 mb-8">{selectedFood.brand || 'Generic Food'}</p>
             
             <form onSubmit={handleAddSubmit} className="space-y-6">
@@ -276,7 +293,7 @@ export default function FoodSearch({ onAdd, onClose }: FoodSearchProps) {
                 type="submit" 
                 className="w-full bg-emerald-500 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
               >
-                Add to Diary
+                {isEditing ? 'Update Diary' : 'Add to Diary'}
               </button>
             </form>
           </div>

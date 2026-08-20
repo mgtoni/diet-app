@@ -18,6 +18,7 @@ export default function DiaryPage() {
   const [loading, setLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(false);
   const [showSearch, setShowSearch] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
   const [showAILog, setShowAILog] = useState<string | null>(null);
   const [aiText, setAiText] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -101,7 +102,11 @@ export default function DiaryPage() {
                   ) : (
                     <ul className="space-y-1">
                       {items.map((item: any, idx: number) => (
-                        <li key={idx} className="flex flex-col p-3 hover:bg-gray-50 rounded-2xl transition-colors group">
+                        <li 
+                          key={idx} 
+                          onClick={() => setEditingItem(item)}
+                          className="flex flex-col p-3 hover:bg-gray-50 rounded-2xl transition-colors group cursor-pointer"
+                        >
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="font-medium text-gray-900">{item.foodName}</div>
@@ -156,7 +161,6 @@ export default function DiaryPage() {
           onClose={() => setShowSearch(null)} 
           onAdd={async (food, inputQuantity, grams, servingSizeId) => {
             try {
-              // Make sure to calculate snapshot per quantity
               const ratio = grams / 100;
               const snapshot = {
                 calories: Math.round(food.nutrition.calories * ratio),
@@ -183,6 +187,58 @@ export default function DiaryPage() {
                 fetchDiaryData();
               } else {
                 console.error('Failed to add food');
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }} 
+        />
+      )}
+
+      {editingItem && (
+        <FoodSearch 
+          initialFood={editingItem.baseFood}
+          initialQuantity={editingItem.quantity?.toString()}
+          initialUnit={editingItem.servingSizeId || 'g'}
+          isEditing={true}
+          onClose={() => setEditingItem(null)} 
+          onDelete={async () => {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+            try {
+              const res = await fetch(`/api/diary/item/${editingItem.id}`, { method: 'DELETE' });
+              if (res.ok) {
+                setEditingItem(null);
+                fetchDiaryData();
+              }
+            } catch (e) {
+              console.error('Failed to delete item', e);
+            }
+          }}
+          onAdd={async (food, inputQuantity, grams, servingSizeId) => {
+            try {
+              const ratio = grams / 100;
+              const snapshot = {
+                calories: Math.round(food.nutrition.calories * ratio),
+                protein: Math.round(food.nutrition.protein * ratio * 10) / 10,
+                carbohydrates: Math.round(food.nutrition.carbohydrates * ratio * 10) / 10,
+                fat: Math.round(food.nutrition.fat * ratio * 10) / 10,
+              };
+
+              const res = await fetch(`/api/diary/item/${editingItem.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  quantity: inputQuantity,
+                  servingSizeId,
+                  nutritionSnapshot: snapshot
+                })
+              });
+              
+              if (res.ok) {
+                setEditingItem(null);
+                fetchDiaryData();
+              } else {
+                console.error('Failed to update food');
               }
             } catch (e) {
               console.error(e);
