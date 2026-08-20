@@ -108,6 +108,16 @@ export default function DashboardPage() {
                 {pref}
               </span>
             ))}
+            {profileSummary?.healthConditions?.map((cond: string) => (
+              <span key={cond} className="px-3 py-1 bg-rose-100 text-rose-800 text-xs font-semibold rounded-full capitalize">
+                {cond}
+              </span>
+            ))}
+            {profileSummary?.allergies?.map((allergy: string) => (
+              <span key={allergy} className="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full capitalize">
+                No {allergy}
+              </span>
+            ))}
           </div>
         </div>
 

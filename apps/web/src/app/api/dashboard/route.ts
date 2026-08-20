@@ -32,6 +32,7 @@ export async function GET(request: Request) {
       { data: entries },
       { data: dietaryPrefsData },
       { data: healthCondsData },
+      { data: allergiesData },
       { data: aiInsightDailyData }
     ] = await Promise.all([
       supabaseAdmin.from('profiles').select('*').eq('id', userId).single(),
@@ -51,11 +52,13 @@ export async function GET(request: Request) {
         .lte('entry_date', maxDate),
       supabaseAdmin.from('dietary_preferences').select('preference_name').eq('user_id', userId),
       supabaseAdmin.from('health_conditions').select('condition_name').eq('user_id', userId),
+      supabaseAdmin.from('allergies').select('allergen_name').eq('user_id', userId),
       supabaseAdmin.from('ai_insights').select('*').eq('user_id', userId).eq('date', dateParam).eq('insight_type', 'daily').maybeSingle()
     ]);
 
     const dietaryPreferences = dietaryPrefsData?.map(p => p.preference_name) || [];
     const healthConditions = healthCondsData?.map(h => h.condition_name) || [];
+    const allergies = allergiesData?.map(a => a.allergen_name) || [];
     
     // Check premium status
     const isPremium = await featureFlagService.hasAccess(userId, 'premium_daily_review');
@@ -191,6 +194,8 @@ export async function GET(request: Request) {
         goal: goal?.goal_type || 'maintain',
         activityLevel: profile?.activity_level || 'sedentary',
         dietaryPreferences,
+        healthConditions,
+        allergies,
         pregnancyStatus: profile?.pregnancy_status || 'none'
       },
       aiInsights: {
