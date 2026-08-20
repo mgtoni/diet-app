@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/utils/supabase/client';
 
 export default function AccountForm({ initialData }: { initialData: any }) {
   const [name, setName] = useState(initialData?.profile?.name || '');
@@ -10,8 +10,6 @@ export default function AccountForm({ initialData }: { initialData: any }) {
   const [isResetting, setIsResetting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-
-  const supabase = createClient();
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
