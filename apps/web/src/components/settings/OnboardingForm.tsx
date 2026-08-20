@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const GOALS = [
   { id: 'lose_weight', label: 'Lose weight' },
@@ -28,33 +29,59 @@ const HEALTH_CONDS = ['Coeliac Disease', 'Gluten Intolerance', 'Lactose Intolera
 const ALLERGENS = ['Nuts', 'Peanuts', 'Shellfish', 'Fish', 'Eggs', 'Soya', 'Dairy', 'Gluten', 'Sesame', 'Sulphites'];
 
 export default function OnboardingForm({ initialData }: { initialData: any }) {
-  const [goal, setGoal] = useState(initialData?.goal?.goal_type || 'maintain');
-  const [pace, setPace] = useState(initialData?.goal?.pace || 'moderate');
-  const [targetWeight, setTargetWeight] = useState(initialData?.goal?.target_weight_kg?.toString() || '');
-  const [activity, setActivity] = useState(initialData?.profile?.activity_level || 'sedentary');
+  const router = useRouter();
   
-  const [prefs, setPrefs] = useState<string[]>(initialData?.preferences?.map((p: any) => p.preference_name) || []);
-  const [conditions, setConditions] = useState<string[]>(initialData?.healthConditions || []);
-  const [allergies, setAllergies] = useState<string[]>(initialData?.allergies || []);
+  const initialGoal = initialData?.goal?.goal_type || 'maintain';
+  const initialPace = initialData?.goal?.pace || 'moderate';
+  const initialTargetWeight = initialData?.goal?.target_weight_kg?.toString() || '';
+  const initialActivity = initialData?.profile?.activity_level || 'sedentary';
+  const initialPrefs = initialData?.preferences?.map((p: any) => p.preference_name) || [];
+  const initialConditions = initialData?.healthConditions || [];
+  const initialAllergies = initialData?.allergies || [];
+
+  const [goal, setGoal] = useState(initialGoal);
+  const [pace, setPace] = useState(initialPace);
+  const [targetWeight, setTargetWeight] = useState(initialTargetWeight);
+  const [activity, setActivity] = useState(initialActivity);
+  
+  const [prefs, setPrefs] = useState<string[]>(initialPrefs);
+  const [conditions, setConditions] = useState<string[]>(initialConditions);
+  const [allergies, setAllergies] = useState<string[]>(initialAllergies);
 
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const toggleArrayItem = (arr: string[], setArr: any, item: string) => {
+    setMessage('');
     if (arr.includes(item)) setArr(arr.filter(i => i !== item));
     else setArr([...arr, item]);
   };
 
+  const isArrayEqual = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((val, index) => val === sortedB[index]);
+  };
+
+  const isGoalDirty = goal !== initialGoal || pace !== initialPace || targetWeight !== initialTargetWeight;
+  const isActivityDirty = activity !== initialActivity;
+  const isPrefsDirty = !isArrayEqual(prefs, initialPrefs) || !isArrayEqual(conditions, initialConditions) || !isArrayEqual(allergies, initialAllergies);
+  
+  const isDirty = isGoalDirty || isActivityDirty || isPrefsDirty;
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isDirty) return;
+    
     setIsLoading(true);
     setMessage('');
     setError('');
 
     try {
       // 1. Update Profile (Activity)
-      if (activity !== initialData?.profile?.activity_level) {
+      if (isActivityDirty) {
         const resProfile = await fetch('/api/user/profile', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -65,12 +92,7 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
       }
 
       // 2. Update Goal
-      const currentGoal = initialData?.goal;
-      if (
-        goal !== currentGoal?.goal_type ||
-        pace !== currentGoal?.pace ||
-        (targetWeight ? Number(targetWeight) !== currentGoal?.target_weight_kg : currentGoal?.target_weight_kg !== null)
-      ) {
+      if (isGoalDirty) {
         const resGoal = await fetch('/api/user/goals', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -85,19 +107,22 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
       }
 
       // 3. Update Preferences, Conditions, Allergies
-      const resPrefs = await fetch('/api/user/preferences', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dietary_preferences: prefs,
-          health_conditions: conditions,
-          allergies: allergies
-        })
-      });
-      const dataPrefs = await resPrefs.json();
-      if (!dataPrefs.success) throw new Error(dataPrefs.error || 'Failed to update preferences');
+      if (isPrefsDirty) {
+        const resPrefs = await fetch('/api/user/preferences', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dietary_preferences: prefs,
+            health_conditions: conditions,
+            allergies: allergies
+          })
+        });
+        const dataPrefs = await resPrefs.json();
+        if (!dataPrefs.success) throw new Error(dataPrefs.error || 'Failed to update preferences');
+      }
 
-      setMessage('Nutrition profile updated successfully.');
+      setMessage('Settings successfully saved! 🎉');
+      router.refresh(); // This will refresh the page and update the initialData from the server components!
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
     } finally {
@@ -111,8 +136,8 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
     <div className="max-w-2xl pb-10">
       <h2 className="font-headline-sm text-primary mb-6">Nutrition Profile</h2>
       
-      {message && <div className="p-4 mb-6 bg-mint-bg text-primary rounded-xl border border-mint-surface font-label-md">{message}</div>}
-      {error && <div className="p-4 mb-6 bg-salmon-bg text-salmon-accent rounded-xl border border-salmon-surface font-label-md">{error}</div>}
+      {message && <div className="p-4 mb-6 bg-mint-bg text-primary rounded-xl border border-mint-surface font-label-md flex items-center gap-2"><span className="material-symbols-outlined">check_circle</span> {message}</div>}
+      {error && <div className="p-4 mb-6 bg-salmon-bg text-salmon-accent rounded-xl border border-salmon-surface font-label-md flex items-center gap-2"><span className="material-symbols-outlined">error</span> {error}</div>}
       
       <form onSubmit={handleSave} className="space-y-8">
         
@@ -124,7 +149,7 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
               <button
                 type="button"
                 key={g.id}
-                onClick={() => setGoal(g.id)}
+                onClick={() => { setGoal(g.id); setMessage(''); }}
                 className={`p-3 rounded-xl border text-left transition-all ${goal === g.id ? 'border-primary bg-primary-container text-on-primary-container font-bold' : 'border-outline-variant text-on-surface hover:bg-surface-variant/30'}`}
               >
                 {g.label}
@@ -140,7 +165,7 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
                   type="number"
                   step="0.1"
                   value={targetWeight}
-                  onChange={(e) => setTargetWeight(e.target.value)}
+                  onChange={(e) => { setTargetWeight(e.target.value); setMessage(''); }}
                   className="w-full sm:w-1/2 bg-surface border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow"
                   placeholder="e.g. 70"
                 />
@@ -152,7 +177,7 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
                     <button
                       type="button"
                       key={p.id}
-                      onClick={() => setPace(p.id)}
+                      onClick={() => { setPace(p.id); setMessage(''); }}
                       className={`p-3 rounded-xl border text-center transition-all ${pace === p.id ? 'border-primary bg-primary-container text-on-primary-container font-bold' : 'border-outline-variant text-on-surface hover:bg-surface-variant/30'}`}
                     >
                       {p.label}
@@ -173,7 +198,7 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
               <button
                 type="button"
                 key={a.id}
-                onClick={() => setActivity(a.id)}
+                onClick={() => { setActivity(a.id); setMessage(''); }}
                 className={`p-3 rounded-xl border text-left transition-all ${activity === a.id ? 'border-primary bg-primary-container text-on-primary-container font-bold' : 'border-outline-variant text-on-surface hover:bg-surface-variant/30'}`}
               >
                 {a.label}
@@ -236,11 +261,11 @@ export default function OnboardingForm({ initialData }: { initialData: any }) {
         <div className="pt-6">
           <button
             type="submit"
-            disabled={isLoading}
-            className="bg-primary text-on-primary font-bold py-3 px-8 rounded-full shadow-md hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-70 flex items-center gap-2"
+            disabled={isLoading || !isDirty}
+            className={`font-bold py-3 px-8 rounded-full shadow-md transition-all flex items-center gap-2 ${isDirty ? 'bg-primary text-on-primary hover:bg-primary/90 active:scale-95' : 'bg-surface-variant text-on-surface-variant opacity-50 cursor-not-allowed'}`}
           >
             {isLoading && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
-            Save Profile
+            {isDirty ? 'Save Profile' : 'No Changes to Save'}
           </button>
         </div>
       </form>

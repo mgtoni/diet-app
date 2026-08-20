@@ -1,8 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { supabase } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function AccountForm({ initialData }: { initialData: any }) {
+  const router = useRouter();
   const [name, setName] = useState(initialData?.profile?.name || '');
   const [email, setEmail] = useState(initialData?.email || '');
   
@@ -11,31 +13,36 @@ export default function AccountForm({ initialData }: { initialData: any }) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
+  const isNameDirty = name !== (initialData?.profile?.name || '');
+  const isEmailDirty = email !== (initialData?.email || '');
+  const isDirty = isNameDirty || isEmailDirty;
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isDirty) return;
+    
     setIsLoading(true);
     setMessage('');
     setError('');
 
     try {
       // 1. Update Profile (Name)
-      const resProfile = await fetch('/api/user/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
-      const dataProfile = await resProfile.json();
-      if (!dataProfile.success) throw new Error(dataProfile.error || 'Failed to update name');
+      if (isNameDirty) {
+        const resProfile = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const dataProfile = await resProfile.json();
+        if (!dataProfile.success) throw new Error(dataProfile.error || 'Failed to update name');
+      }
 
       // 2. Update Account (Email)
-      const accountUpdates: any = {};
-      if (email !== initialData?.email) accountUpdates.email = email;
-
-      if (Object.keys(accountUpdates).length > 0) {
+      if (isEmailDirty) {
         const resAccount = await fetch('/api/user/account', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(accountUpdates)
+          body: JSON.stringify({ email })
         });
         const dataAccount = await resAccount.json();
         if (!dataAccount.success) throw new Error(dataAccount.error || 'Failed to update account credentials');
@@ -43,6 +50,7 @@ export default function AccountForm({ initialData }: { initialData: any }) {
       } else {
         setMessage('Account updated successfully.');
       }
+      router.refresh();
 
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
@@ -106,11 +114,11 @@ export default function AccountForm({ initialData }: { initialData: any }) {
         <div className="pt-6 flex gap-4">
           <button
             type="submit"
-            disabled={isLoading || isResetting}
-            className="bg-primary text-on-primary font-bold py-3 px-8 rounded-full shadow-md hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-70 flex items-center gap-2"
+            disabled={isLoading || isResetting || !isDirty}
+            className={`font-bold py-3 px-8 rounded-full shadow-md transition-all flex items-center gap-2 ${isDirty ? 'bg-primary text-on-primary hover:bg-primary/90 active:scale-95' : 'bg-surface-variant text-on-surface-variant opacity-50 cursor-not-allowed'}`}
           >
             {isLoading && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
-            Save Changes
+            {isDirty ? 'Save Changes' : 'No Changes to Save'}
           </button>
         </div>
       </form>

@@ -32,7 +32,7 @@ export async function PATCH(request: Request) {
     if (dietary_preferences !== undefined) {
       await supabaseAdmin.from('dietary_preferences').delete().eq('user_id', user.id);
       if (dietary_preferences.length > 0) {
-        await supabaseAdmin.from('dietary_preferences').insert(
+        const { error } = await supabaseAdmin.from('dietary_preferences').insert(
           dietary_preferences.map((pref: any) => ({
             user_id: user.id,
             preference_name: typeof pref === 'string' ? pref : pref.name,
@@ -40,6 +40,7 @@ export async function PATCH(request: Request) {
             if_window_end: pref.if_window_end || null
           }))
         );
+        if (error) throw error;
       }
     }
 
@@ -47,12 +48,13 @@ export async function PATCH(request: Request) {
     if (health_conditions !== undefined) {
       await supabaseAdmin.from('health_conditions').delete().eq('user_id', user.id);
       if (health_conditions.length > 0) {
-        await supabaseAdmin.from('health_conditions').insert(
+        const { error } = await supabaseAdmin.from('health_conditions').insert(
           health_conditions.map((cond: string) => ({
             user_id: user.id,
             condition_name: cond
           }))
         );
+        if (error) throw error;
       }
     }
 
@@ -60,12 +62,13 @@ export async function PATCH(request: Request) {
     if (allergies !== undefined) {
       await supabaseAdmin.from('allergies').delete().eq('user_id', user.id);
       if (allergies.length > 0) {
-        await supabaseAdmin.from('allergies').insert(
+        const { error } = await supabaseAdmin.from('allergies').insert(
           allergies.map((allergy: string) => ({
             user_id: user.id,
             allergen_name: allergy
           }))
         );
+        if (error) throw error;
       }
     }
 
