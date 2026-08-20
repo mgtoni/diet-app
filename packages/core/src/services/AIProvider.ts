@@ -13,6 +13,7 @@ export interface NutritionContext {
   goal: string;
   dietaryPreferences: string[];
   healthConditions: string[];
+  allergies: string[];
   macroTargets: { calories: number; protein: number; fat: number; carbs: number };
   consumed: { calories: number; protein: number; fat: number; carbs: number };
   loggedFoods: any[];

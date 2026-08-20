@@ -52,7 +52,7 @@ export default function DashboardPage() {
   const { nutritionScore, dietQualityScore, calorieTarget, caloriesConsumed, macros, isPremium, profileSummary, aiInsights } = data;
   const remaining = calorieTarget - caloriesConsumed;
   const progress = Math.min((caloriesConsumed / calorieTarget) * 100, 100);
-  
+
   const displayPremium = true;
 
   return (
@@ -72,8 +72,8 @@ export default function DashboardPage() {
             <span className="font-semibold w-24 text-center text-sm md:text-base text-gray-900">
               {isToday ? 'Today' : date}
             </span>
-            <button 
-              onClick={() => handleDateChange(1)} 
+            <button
+              onClick={() => handleDateChange(1)}
               disabled={isToday}
               className={`p-2 transition-colors ${isToday ? 'text-gray-400 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900'}`}
             >
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       </header>
 
       <div className={`transition-opacity duration-300 ${isRefetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-        
+
         {/* Metabolic Profile */}
         <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
           <div>
@@ -108,99 +108,89 @@ export default function DashboardPage() {
                 {pref}
               </span>
             ))}
-            {profileSummary?.healthConditions?.map((cond: string) => (
-              <span key={cond} className="px-3 py-1 bg-rose-100 text-rose-800 text-xs font-semibold rounded-full capitalize">
-                {cond}
-              </span>
-            ))}
-            {profileSummary?.allergies?.map((allergy: string) => (
-              <span key={allergy} className="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full capitalize">
-                No {allergy}
-              </span>
-            ))}
           </div>
         </div>
 
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-1 h-full">
-          <ScoreCard 
-            title="Nutrition Score"
-            score={nutritionScore}
-            barGradientClass="bg-gradient-to-r from-amber-400 to-emerald-400"
-            bubbleClass="bg-emerald-500/10 group-hover:bg-emerald-500/20"
-            hoverBorderClass="hover:border-emerald-500/50"
-            explanation={
-              <>
-                <p>
-                  Your <strong>Nutrition Score</strong> measures how well you are meeting your daily caloric and macronutrient targets.
-                </p>
-                <ul className="list-disc pl-5 space-y-1 mt-2">
-                  <li><strong>50%</strong> Calorie Adherence</li>
-                  <li><strong>50%</strong> Macro Balance</li>
-                </ul>
-                <p className="mt-2">
-                  A score of 75+ is excellent. If your score is lower, try to adjust your meals to better hit your macro and calorie goals.
-                </p>
-              </>
-            }
-          />
-        </div>
-        <div className="lg:col-span-2 h-full">
-          <GroupedDietQualityCard score={dietQualityScore} />
-        </div>
-      </div>
-
-      <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm mb-8">
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <h2 className="text-gray-600 font-medium mb-1">Calories Remaining</h2>
-            <div className="text-4xl font-bold text-gray-900">{remaining} <span className="text-lg text-gray-500 font-normal">kcal</span></div>
+          <div className="lg:col-span-1 h-full">
+            <ScoreCard
+              title="Nutrition Score"
+              score={nutritionScore}
+              barGradientClass="bg-gradient-to-r from-amber-400 to-emerald-400"
+              bubbleClass="bg-emerald-500/10 group-hover:bg-emerald-500/20"
+              hoverBorderClass="hover:border-emerald-500/50"
+              explanation={
+                <>
+                  <p>
+                    Your <strong>Nutrition Score</strong> measures how well you are meeting your daily caloric and macronutrient targets.
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 mt-2">
+                    <li><strong>50%</strong> Calorie Adherence</li>
+                    <li><strong>50%</strong> Macro Balance</li>
+                  </ul>
+                  <p className="mt-2">
+                    A score of 75+ is excellent. If your score is lower, try to adjust your meals to better hit your macro and calorie goals.
+                  </p>
+                </>
+              }
+            />
           </div>
-          <div className="text-right">
-            <div className="text-emerald-600 font-medium">{caloriesConsumed} eaten</div>
-            <div className="text-gray-500 text-sm">{calorieTarget} goal</div>
+          <div className="lg:col-span-2 h-full">
+            <GroupedDietQualityCard score={dietQualityScore} />
           </div>
         </div>
-        <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
-          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
+
+        <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 border border-gray-200 shadow-sm mb-8">
+          <div className="flex justify-between items-end mb-6">
+            <div>
+              <h2 className="text-gray-600 font-medium mb-1">Calories Remaining</h2>
+              <div className="text-4xl font-bold text-gray-900">{remaining} <span className="text-lg text-gray-500 font-normal">kcal</span></div>
+            </div>
+            <div className="text-right">
+              <div className="text-emerald-600 font-medium">{caloriesConsumed} eaten</div>
+              <div className="text-gray-500 text-sm">{calorieTarget} goal</div>
+            </div>
+          </div>
+          <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <MacroCard name="Protein" color="bg-blue-500" data={macros.protein} />
+            <MacroCard name="Fat" color="bg-orange-500" data={macros.fat} />
+            <MacroCard name="Carbs" color="bg-purple-500" data={macros.carbs} />
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mt-8">
-          <MacroCard name="Protein" color="bg-blue-500" data={macros.protein} />
-          <MacroCard name="Fat" color="bg-orange-500" data={macros.fat} />
-          <MacroCard name="Carbs" color="bg-purple-500" data={macros.carbs} />
+        {/* AI Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="h-full">
+            <AIInsightCard
+              title="Daily AI Insight"
+              content={aiInsights?.daily}
+              isPremium={displayPremium}
+              type="daily"
+              href="/ai-coach"
+            />
+          </div>
+          <div className="h-full">
+            <AIInsightCard
+              title="Weekly AI Review"
+              content={aiInsights?.weekly || "Your weekly review will be available on Sunday. Keep logging your meals!"}
+              isPremium={displayPremium}
+              type="weekly"
+              href="/ai-coach"
+            />
+          </div>
         </div>
-      </div>
-
-      {/* AI Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="h-full">
-          <AIInsightCard 
-            title="Daily AI Insight" 
-            content={aiInsights?.daily} 
-            isPremium={displayPremium} 
-            type="daily" 
-            href="/ai-coach"
-          />
-        </div>
-        <div className="h-full">
-          <AIInsightCard 
-            title="Weekly AI Review" 
-            content={aiInsights?.weekly || "Your weekly review will be available on Sunday. Keep logging your meals!"} 
-            isPremium={displayPremium} 
-            type="weekly" 
-            href="/ai-coach"
-          />
-        </div>
-      </div>
 
 
-      <div className="flex gap-4">
-        <Link href="/diary" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-900 font-bold py-4 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-1 text-center">
-          Open Food Diary
-        </Link>
-      </div>
+        <div className="flex gap-4">
+          <Link href="/diary" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-900 font-bold py-4 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-1 text-center">
+            Open Food Diary
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -236,9 +226,9 @@ function GroupedDietQualityCard({ score }: { score: number }) {
     <>
       <div className="bg-white/60 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-200 shadow-sm relative overflow-hidden group hover:border-teal-400/50 transition-all duration-500 flex flex-col md:flex-row gap-6 h-full">
         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-teal-500/10 blur-2xl group-hover:bg-teal-500/20 transition-all"></div>
-        
+
         {/* Desktop Help Button */}
-        <button 
+        <button
           onClick={() => setShowInfo(true)}
           className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-white border border-gray-300 items-center justify-center text-xs text-gray-500 hover:text-gray-900 hover:border-gray-400 transition-all z-10"
           title="Learn more"
@@ -265,17 +255,17 @@ function GroupedDietQualityCard({ score }: { score: number }) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                 <YAxis domain={[0, 100]} hide />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#fff', borderColor: '#e5e7eb', borderRadius: '8px', color: '#111827', fontSize: '12px', padding: '4px 8px' }}
                   itemStyle={{ color: '#34d399' }}
                   labelStyle={{ display: 'none' }}
                   cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="diet_quality_score" 
+                <Line
+                  type="monotone"
+                  dataKey="diet_quality_score"
                   name="Score"
-                  stroke="#14b8a6" 
+                  stroke="#14b8a6"
                   strokeWidth={3}
                   dot={false}
                   activeDot={{ r: 4, fill: '#34d399', strokeWidth: 0 }}
@@ -290,7 +280,7 @@ function GroupedDietQualityCard({ score }: { score: number }) {
         </div>
 
         {/* Mobile Learn More Bar */}
-        <button 
+        <button
           onClick={() => setShowInfo(true)}
           className="md:hidden absolute bottom-0 left-0 right-0 bg-white/40 border-t border-gray-200 py-2 text-xs text-gray-600 font-medium hover:bg-white/60 transition-colors flex items-center justify-center gap-1 z-10"
         >
@@ -346,20 +336,20 @@ function MacroCard({ name, color, data }: { name: string, color: string, data: a
   );
 }
 
-function ScoreCard({ 
-  title, 
-  score, 
-  barGradientClass, 
+function ScoreCard({
+  title,
+  score,
+  barGradientClass,
   bubbleClass,
   hoverBorderClass,
-  explanation 
-}: { 
-  title: string, 
-  score: number, 
+  explanation
+}: {
+  title: string,
+  score: number,
   barGradientClass: string,
   bubbleClass: string,
   hoverBorderClass: string,
-  explanation: React.ReactNode 
+  explanation: React.ReactNode
 }) {
   const [showInfo, setShowInfo] = useState(false);
 
@@ -367,9 +357,9 @@ function ScoreCard({
     <>
       <div className={`bg-white/60 backdrop-blur-md rounded-3xl p-6 md:pb-6 pb-12 border border-gray-200 shadow-sm relative overflow-hidden group ${hoverBorderClass} transition-all duration-500 flex flex-col h-full`}>
         <div className={`absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full blur-2xl transition-all ${bubbleClass}`}></div>
-        
+
         {/* Desktop Help Button */}
-        <button 
+        <button
           onClick={() => setShowInfo(true)}
           className="hidden md:flex absolute top-4 right-4 w-6 h-6 rounded-full bg-white border border-gray-300 items-center justify-center text-xs text-gray-500 hover:text-gray-900 hover:border-gray-400 transition-all z-10"
           aria-label="Learn more about this score"
@@ -388,7 +378,7 @@ function ScoreCard({
         </div>
 
         {/* Mobile Learn More Bar */}
-        <button 
+        <button
           onClick={() => setShowInfo(true)}
           className="md:hidden absolute bottom-0 left-0 right-0 bg-white/40 border-t border-gray-200 py-2 text-xs text-gray-600 font-medium hover:bg-white/60 transition-colors flex items-center justify-center gap-1 z-10"
         >
@@ -402,11 +392,11 @@ function ScoreCard({
       {/* Overlay */}
       {showInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
-          <div 
+          <div
             className="bg-white border border-gray-200 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={() => setShowInfo(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
@@ -418,7 +408,7 @@ function ScoreCard({
             <div className="text-gray-600 text-sm leading-relaxed space-y-3">
               {explanation}
             </div>
-            <button 
+            <button
               onClick={() => setShowInfo(false)}
               className="mt-6 w-full bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold py-3 rounded-xl transition-colors"
             >

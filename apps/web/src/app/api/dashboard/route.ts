@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json({ success: false, error: { message: 'Unauthorized' } }, { status: 401 });
     }
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     const dietaryPreferences = dietaryPrefsData?.map(p => p.preference_name) || [];
     const healthConditions = healthCondsData?.map(h => h.condition_name) || [];
     const allergies = allergiesData?.map(a => a.allergen_name) || [];
-    
+
     // Check premium status
     const isPremium = await featureFlagService.hasAccess(userId, 'premium_daily_review');
 
@@ -96,7 +96,7 @@ export async function GET(request: Request) {
       entries.forEach(entry => {
         const isSelectedDate = entry.entry_date === dateParam;
         const isWithinDqsWindow = entry.entry_date >= dqsStartDateStr && entry.entry_date <= dqsEndDateStr;
-        
+
         if (entry.diary_items) {
           entry.diary_items.forEach((item: any) => {
             const snap = item.nutrition_snapshot;
@@ -104,14 +104,14 @@ export async function GET(request: Request) {
               const foodObj = {
                 name: item.food_name_logged,
                 nutrition: snap,
-                novaGroup: 1, 
+                novaGroup: 1,
                 categories: []
               };
-              
+
               if (isWithinDqsWindow) {
                 foodsLoggedPast7Days.push(foodObj);
               }
-              
+
               if (isSelectedDate) {
                 totalCaloriesLogged += snap.calories || 0;
                 totalProteinLogged += snap.protein || 0;
@@ -135,7 +135,7 @@ export async function GET(request: Request) {
 
     // Diet Quality Score is calculated for the past 7 days up to TODAY
     const dietQualityResult = scoringService.calculateDietQualityScore(
-      foodsLoggedPast7Days, 
+      foodsLoggedPast7Days,
       nutritionScoreResult.breakdown.macroBalance,
       30,
       dietaryPreferences,
@@ -160,6 +160,7 @@ export async function GET(request: Request) {
         goal: goal?.goal_type || 'maintain',
         dietaryPreferences,
         healthConditions,
+        allergies,
         macroTargets: {
           calories: targets.calories,
           protein: targets.protein,
@@ -176,7 +177,7 @@ export async function GET(request: Request) {
         dietQualityScore: dietQualityResult.score
       };
       dailyInsightText = await aiCoachService.getDailyInsight(context);
-      
+
       // Save it to database asynchronously so we don't block
       supabaseAdmin.from('ai_insights').insert({
         user_id: userId,

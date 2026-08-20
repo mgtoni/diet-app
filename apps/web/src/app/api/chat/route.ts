@@ -73,18 +73,21 @@ export async function POST(request: Request) {
       { data: conditions },
       { data: foodsLogged },
       { data: metrics },
-      { data: goals }
+      { data: goals },
+      { data: allergiesData }
     ] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
       supabase.from('user_dietary_preferences').select('preference').eq('user_id', user.id),
       supabase.from('user_health_conditions').select('condition').eq('user_id', user.id),
       supabase.from('food_logs').select('*').eq('user_id', user.id).eq('log_date', today),
       supabase.from('user_metrics').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single(),
-      supabase.from('user_goals').select('*').eq('user_id', user.id).single()
+      supabase.from('user_goals').select('*').eq('user_id', user.id).single(),
+      supabase.from('allergies').select('allergen_name').eq('user_id', user.id)
     ]);
 
     const dietaryPrefsList = preferences?.map(p => p.preference) || [];
     const healthCondsList = conditions?.map(c => c.condition) || [];
+    const allergiesList = allergiesData?.map(a => a.allergen_name) || [];
 
     const calculated = NutritionEngine.calculateTargets({
       sex: profile?.gender as 'male' | 'female',
@@ -142,6 +145,7 @@ export async function POST(request: Request) {
       goal: goals?.goal_type || 'maintain',
       dietaryPreferences: dietaryPrefsList,
       healthConditions: healthCondsList,
+      allergies: allergiesList,
       macroTargets: {
         calories: targets.calories,
         protein: targets.protein,
