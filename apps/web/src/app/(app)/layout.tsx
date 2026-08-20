@@ -16,9 +16,9 @@ export default function AppLayout({
           <div className="font-headline-md font-bold text-primary">SavorAI</div>
           
           <div className="flex items-center gap-4">
-            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
+            <Link href="/settings" className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
               settings
-            </button>
+            </Link>
             <div className="w-8 h-8 rounded-full bg-mint-surface overflow-hidden border border-outline-variant flex items-center justify-center text-primary font-bold">
               U
             </div>
@@ -57,7 +57,7 @@ export default function AppLayout({
               Log Meal
             </Link>
             <div className="pt-4 border-t border-outline-variant/30 space-y-2">
-              <Link href="#" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md">
+              <Link href="/settings" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md">
                 <span className="material-symbols-outlined">settings</span> Settings
               </Link>
               <Link href="#" className="flex items-center gap-3 text-on-surface-variant px-4 py-2 font-label-md">

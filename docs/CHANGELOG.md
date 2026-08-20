@@ -3,6 +3,15 @@
 This document tracks all major features, architectural decisions, and milestones achieved across chat sessions.
 **AI Agents MUST review this file at the start of a session** to understand the current state of the platform.
 
+## August 20, 2026 - Settings & Auditing Features
+**Status:** Completed
+
+- **Settings UI:** Created a unified, responsive `/settings` page for users to manage their Account Info (Name, Email, Password) and Nutrition Profile (Goals, Activity Level, Dietary Preferences, Allergies, Health Conditions).
+- **Secure Password Reset:** Integrated Supabase magic-link password reset flow directly into the Settings page (`resetPasswordForEmail`).
+- **Profile Auditing:** Created `audit_logs` migration and implemented backend tracking for all profile and preference updates. 
+- **Goal Versioning:** When users update their primary goal, the old goal is flagged as inactive, leaving a perfect historical record.
+- **Backend APIs:** Implemented dedicated PATCH and POST endpoints (`/api/user/account`, `/api/user/profile`, `/api/user/preferences`, `/api/user/goals`) leveraging `supabaseAdmin` for secure database operations.
+
 ## August 17, 2026 - Phase 3 (Scoring & Rules) Completion
 **Status:** Completed
 
