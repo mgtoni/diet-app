@@ -67,7 +67,7 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     return {
       id: hit.id,
       name: hit.name,
-      brand: hit.brand,
+      brand: '', // The pipeline deduped by name, so these are all generic master records now. Strip the arbitrary brand.
       barcode: hit.barcode,
       nutrition: {
         calories: hit.calories || 0,
