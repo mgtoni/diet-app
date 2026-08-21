@@ -35,7 +35,8 @@ export class MeilisearchAdapter implements FoodDataAdapter {
       // IMPORTANT: This requires 'sort' to be listed at the BOTTOM of Meilisearch rankingRules.
       const searchResult = await index.search(query, {
         limit: 20,
-        sort: ['type:desc']
+        sort: ['type:desc'],
+        matchingStrategy: 'all'
       });
       
       const allHits = searchResult.hits;
