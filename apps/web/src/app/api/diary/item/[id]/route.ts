@@ -22,7 +22,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     // Verify ownership
     const { data: item, error: fetchError } = await supabaseAdmin
       .from('diary_items')
-      .select('diary_entries(user_id)')
+      .select('diary_entries(user_id, entry_date)')
       .eq('id', id)
       .single();
 
@@ -43,6 +43,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       .single();
 
     if (updateError) throw updateError;
+
+    // Invalidate daily AI insight so it regenerates
+    await supabaseAdmin
+      .from('ai_insights')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date', (item as any).diary_entries?.entry_date)
+      .eq('insight_type', 'daily');
 
     return NextResponse.json({ success: true, data: updatedItem });
   } catch (error: any) {
@@ -66,7 +74,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Verify ownership
     const { data: item, error: fetchError } = await supabaseAdmin
       .from('diary_items')
-      .select('diary_entries(user_id)')
+      .select('diary_entries(user_id, entry_date)')
       .eq('id', id)
       .single();
 
@@ -81,6 +89,14 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       .eq('id', id);
 
     if (deleteError) throw deleteError;
+
+    // Invalidate daily AI insight so it regenerates
+    await supabaseAdmin
+      .from('ai_insights')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date', (item as any).diary_entries?.entry_date)
+      .eq('insight_type', 'daily');
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

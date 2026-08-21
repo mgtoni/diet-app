@@ -192,6 +192,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ dat
 
     if (itemError) throw itemError;
 
+    // 3. Invalidate daily AI insight so it regenerates
+    await supabaseAdmin
+      .from('ai_insights')
+      .delete()
+      .eq('user_id', userId)
+      .eq('date', date)
+      .eq('insight_type', 'daily');
+
     return NextResponse.json({ success: true, data: item });
   } catch (error: any) {
     console.error('Error adding diary entry:', error);

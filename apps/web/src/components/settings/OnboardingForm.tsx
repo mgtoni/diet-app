@@ -19,8 +19,8 @@ const PACES = [
 
 const ACTIVITY_LEVELS = [
   { id: 'sedentary', label: 'Sedentary' },
-  { id: 'light', label: 'Lightly Active' },
-  { id: 'moderate', label: 'Moderately Active' },
+  { id: 'lightly_active', label: 'Lightly Active' },
+  { id: 'moderately_active', label: 'Moderately Active' },
   { id: 'very_active', label: 'Very Active' }
 ];
 

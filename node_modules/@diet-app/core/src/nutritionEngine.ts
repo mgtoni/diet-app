@@ -54,9 +54,16 @@ export class NutritionEngine {
    */
   public static calculateTargets(metrics: UserMetrics): NutritionTargets {
     const bmr = this.calculateBMR(metrics.weightKg, metrics.heightCm, metrics.age, metrics.sex);
-    const tdee = bmr * this.ACTIVITY_MULTIPLIERS[metrics.activityLevel];
-    
     let activeGoal = metrics.goal;
+    let activityLevel = metrics.activityLevel as string;
+    
+    // Map legacy or incorrect values from settings
+    if (activityLevel === 'light') activityLevel = 'lightly_active';
+    if (activityLevel === 'moderate') activityLevel = 'moderately_active';
+    if (activityLevel === 'active') activityLevel = 'very_active';
+    
+    const multiplier = this.ACTIVITY_MULTIPLIERS[activityLevel as ActivityLevel] || 1.2;
+    const tdee = bmr * multiplier;
     
     // Safety pivot for pregnancy / breastfeeding
     if (metrics.pregnancyStatus === 'pregnant' || metrics.pregnancyStatus === 'breastfeeding') {
