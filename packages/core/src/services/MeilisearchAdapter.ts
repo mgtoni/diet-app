@@ -25,17 +25,48 @@ export class MeilisearchAdapter implements FoodDataAdapter {
 
   async search(query: string, locale: string = 'en'): Promise<Food[]> {
     if (!this.client) return [];
-    
+
     try {
+      const lang = locale.split('-')[0] || 'en';
+      const region = locale.split('-')[1]?.toUpperCase();
+      
+      let countryTag = '';
+      if (region === 'GB' || region === 'UK') countryTag = 'en:united-kingdom';
+      else if (region === 'US') countryTag = 'en:united-states';
+      else if (region === 'FR') countryTag = 'en:france';
+      else if (region === 'ES') countryTag = 'en:spain';
+
       const index = this.client.index(this.indexName);
       
-      // Since the database now only contains pristine deduped data,
-      // we can just run a simple search without any filters.
-      const searchResult = await index.search(query, {
-        limit: 20
+      // 1. Fetch top 2 generic items globally that match the query
+      const genericSearch = await index.search(query, {
+        limit: 2,
+        filter: [`type = 'generic'`]
       });
+      const genericHits = genericSearch.hits;
+
+      // 2. Fetch top 20 branded items for the user's locale
+      const countryFilters = countryTag ? [ `countries = '${countryTag}'` ] : [];
+      if (countryTag === 'en:united-kingdom') {
+          countryFilters.push(`countries = 'en:uk'`, `countries = 'en:great-britain'`, `countries = 'en:england'`, `countries = 'en:scotland'`, `countries = 'en:wales'`);
+      }
       
-      const foods = searchResult.hits.map(hit => this.mapToFood(hit));
+      let brandedFilter: any[] = [`type = 'branded'`];
+      if (countryFilters.length > 0) {
+        brandedFilter.push(countryFilters);
+      }
+      
+      const localSearch = await index.search(query, {
+        limit: 20,
+        filter: brandedFilter
+      });
+      const localBrandedHits = localSearch.hits;
+      
+      // Combine them: generic first, then local branded
+      const allHits = [...genericHits, ...localBrandedHits];
+      
+      const foods = allHits.map(hit => this.mapToFood(hit));
+      
       return foods;
     } catch (error) {
       console.error('Meilisearch search error:', error);
@@ -67,7 +98,7 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     return {
       id: hit.id,
       name: hit.name,
-      brand: '', // The pipeline deduped by name, so these are all generic master records now. Strip the arbitrary brand.
+      brand: hit.brand,
       barcode: hit.barcode,
       nutrition: {
         calories: hit.calories || 0,

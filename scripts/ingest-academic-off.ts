@@ -20,7 +20,7 @@ const FILE_PATH = process.argv[2] || 'C:\\Users\\Toni\\Documents\\AI Projects\\o
 
 // All Nutrients to track for imputation (Matching FoodTypes.ts)
 const MICRONUTRIENTS = [
-  'fiber_100g', 'sugars_100g', 'sodium_100g', 'saturated-fat_100g', 
+  'fiber_100g', 'sugars_100g', 'sodium_100g', 'saturated-fat_100g',
   'monounsaturated-fat_100g', 'polyunsaturated-fat_100g',
   'vitamin-a_100g', 'vitamin-b1_100g', 'vitamin-b2_100g', 'vitamin-pp_100g', // B3 is PP in OFF
   'vitamin-b6_100g', 'vitamin-b9_100g', 'vitamin-b12_100g', 'vitamin-c_100g',
@@ -58,7 +58,7 @@ function calculateCompleteness(nutriments: any): number {
 async function phase1() {
   console.log('--- PHASE 1: Analytics Pass ---');
   console.log('Scanning 78GB file to build academic mean imputation models...');
-  
+
   const fileStream = fs.createReadStream(FILE_PATH);
   const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 
@@ -72,11 +72,8 @@ async function phase1() {
       const name = item.product_name_en || item.product_name;
       if (!name) continue;
 
-      const category = normalizeName(name);
-      if (!category) continue;
-
       const nutriments = item.nutriments || {};
-      
+
       // OPTIMIZATION: Track stats by generic category rather than millions of unique names
       // This prevents V8 heap Out-Of-Memory errors on 78GB files.
       const categoriesTags: string[] = item.categories_tags || [];
@@ -106,11 +103,11 @@ async function phase1() {
 async function phase2() {
   console.log('--- PHASE 2: Cleaning, Imputation & Ingestion Pass ---');
   const index = client.index(INDEX_NAME);
-  
+
   // Setup index settings
   await index.updateSettings({
     searchableAttributes: ['name', 'brand'],
-    filterableAttributes: ['locale', 'brand', 'barcode'],
+    filterableAttributes: ['type', 'countries', 'barcode'],
   });
 
   const fileStream = fs.createReadStream(FILE_PATH);
@@ -131,7 +128,7 @@ async function phase2() {
 
       // GATE 1: Missing critical data
       if (!name) continue;
-      
+
       const calories = parseFloat(nutriments['energy-kcal_100g']);
       const protein = parseFloat(nutriments['proteins_100g']);
       const fat = parseFloat(nutriments['fat_100g']);
@@ -143,19 +140,20 @@ async function phase2() {
       if (calories > 900 || protein > 100 || fat > 100 || carbs > 100) continue;
       if (calories < 0 || protein < 0 || fat < 0 || carbs < 0) continue;
 
-      const slug = normalizeName(name);
+      const brandStr = item.brands || '';
+      const { slug, type, cleanBrand } = generateSlug(name, brandStr);
       const completeness = calculateCompleteness(nutriments);
 
       // GATE 3: Deduplication (Keep highest completeness)
       const currentBest = dedupeMap.get(slug) || 0;
-      if (completeness <= currentBest && currentBest !== 0) continue; 
+      if (completeness <= currentBest && currentBest !== 0) continue;
       dedupeMap.set(slug, completeness);
 
       // ACADEMIC IMPUTATION
       const categoriesTags: string[] = item.categories_tags || [];
       const primaryCategory = categoriesTags.length > 0 ? categoriesTags[0] : 'uncategorized';
       const stats = categoryStats.get(primaryCategory);
-      
+
       const getImputedVal = (key: string) => {
         let val = parseFloat(nutriments[key]);
         if (isNaN(val) || val < 0) {
@@ -170,27 +168,29 @@ async function phase2() {
 
       const foodRecord = {
         id: `academic-${slug.substring(0, 50)}`, // unique ID overwrites older/worse duplicates in Meili
+        type: type,
         barcode: item.code || null,
         name: name,
-        brand: item.brands || '',
+        brand: cleanBrand,
         locale: 'en',
         source: 'academic-pipeline',
         imageUrl: item.image_url || null,
         completenessScore: completeness,
         novaGroup: parseInt(item.nova_group) || null,
+        countries: item.countries_tags || [],
         categories: item.categories ? item.categories.split(',').map((c: string) => c.trim()) : [],
         // Extra metadata excellent for AI Coach context:
         ingredientsText: item.ingredients_text_en || item.ingredients_text || null,
         additives: item.additives_tags || [],
         allergens: item.allergens_tags || [],
         traces: item.traces_tags || [],
-        
+
         // Macros
         calories: calories,
         protein: protein,
         fat: fat,
         carbohydrates: carbs,
-        
+
         // Imputed Micronutrients
         fiber: getImputedVal('fiber_100g'),
         sugar: getImputedVal('sugars_100g'),
@@ -245,7 +245,7 @@ async function run() {
 
   console.log(`Starting Academic Pipeline on ${FILE_PATH}`);
   const startTime = Date.now();
-  
+
   await phase1();
   await phase2();
 
