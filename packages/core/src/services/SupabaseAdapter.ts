@@ -11,6 +11,7 @@ export class SupabaseAdapter implements FoodDataAdapter {
         .select('*, serving_sizes(id, serving_name, weight_g)')
         .ilike('name', `%${query}%`)
         .eq('locale', locale)
+        .neq('provider_id', 'OFF') // Do not return cached OFF items; let Meilisearch handle them
         .order('trust_score', { ascending: false })
         .order('completeness_score', { ascending: false })
         .limit(10);

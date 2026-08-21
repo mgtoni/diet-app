@@ -43,6 +43,15 @@ function normalizeName(name: string): string {
   return name.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
 }
 
+function generateSlug(name: string, brand: string): { slug: string, type: string, cleanBrand: string } {
+  const normName = normalizeName(name);
+  if (!brand || typeof brand !== 'string' || brand.trim() === '' || brand.toLowerCase() === 'generic' || brand.toLowerCase() === 'unknown') {
+    return { slug: `generic-${normName}`, type: 'generic', cleanBrand: '' };
+  }
+  const normBrand = normalizeName(brand);
+  return { slug: `branded-${normBrand}-${normName}`, type: 'branded', cleanBrand: brand };
+}
+
 function calculateCompleteness(nutriments: any): number {
   let score = 0;
   if (nutriments['energy-kcal_100g'] !== undefined) score += 10;
@@ -140,7 +149,7 @@ async function phase2() {
       if (calories > 900 || protein > 100 || fat > 100 || carbs > 100) continue;
       if (calories < 0 || protein < 0 || fat < 0 || carbs < 0) continue;
 
-      const brandStr = item.brands || '';
+      const brandStr = typeof item.brands === 'string' ? item.brands : (Array.isArray(item.brands) ? item.brands.join(', ') : '');
       const { slug, type, cleanBrand } = generateSlug(name, brandStr);
       const completeness = calculateCompleteness(nutriments);
 
@@ -220,18 +229,26 @@ async function phase2() {
       batch.push(foodRecord);
 
       if (batch.length >= BATCH_SIZE) {
-        await index.addDocuments(batch);
-        ingested += batch.length;
+        try {
+          await index.addDocuments(batch);
+          ingested += batch.length;
+        } catch (err: any) {
+          console.error('Batch insert failed:', err.message);
+        }
         batch = [];
       }
-    } catch (e) {
-      // ignore
+    } catch (e: any) {
+      if (processed < 1000) console.error('Parse error:', e.message); // Only log the first few to avoid spam
     }
   }
 
   if (batch.length > 0) {
-    await index.addDocuments(batch);
-    ingested += batch.length;
+    try {
+      await index.addDocuments(batch);
+      ingested += batch.length;
+    } catch (err: any) {
+      console.error('Final batch insert failed:', err.message);
+    }
   }
 
   console.log(`\nPipeline Complete! Processed ${processed} raw lines. Safely ingested ${ingested} academic-grade records into Meilisearch.`);

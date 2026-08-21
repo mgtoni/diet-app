@@ -60,30 +60,37 @@ export class FoodService {
    * Search implementation with Quality Waterfall
    */
   async search(query: string, locale: string = 'en-US'): Promise<Food[]> {
-    // 1. Local Cache Check (Supabase)
-    const localResults = await this.supabaseAdapter.search(query, locale);
-    const validLocalResults = localResults.filter((f) => this.passesIntegrityCheck(f));
-    if (validLocalResults.length > 0) {
-      return validLocalResults;
+    let allResults: Food[] = [];
+
+    // 1. User Custom Foods (Supabase)
+    // SupabaseAdapter is now restricted to only returning user-created foods (provider != OFF)
+    const customResults = await this.supabaseAdapter.search(query, locale);
+    const validCustom = customResults.filter((f) => this.passesIntegrityCheck(f));
+    if (validCustom.length > 0) {
+      allResults = [...allResults, ...validCustom];
     }
 
-    // 2. Governmental Database Check (Meilisearch)
+    // 2. Governmental/Global Database Check (Meilisearch)
     if (this.meiliAdapter.isActive) {
       const meiliResults = await this.meiliAdapter.search(query, locale);
       const validMeiliResults = meiliResults.filter((f) => this.passesIntegrityCheck(f));
+      
       if (validMeiliResults.length > 0) {
-        // Ensure they have valid UUIDs from Supabase
+        // Ensure they have valid UUIDs from Supabase (Upsert them so they can be added to the diary)
         const updatedMeili = await Promise.all(
           validMeiliResults.map(async (food) => {
             if (!this.isUuid(food.id)) {
-              // Note: provider is determined by the meili index or food source mapping
               return await this.upsertToSupabase(food, locale, food.providerId || 'OFF');
             }
             return food;
           })
         );
-        return updatedMeili;
+        allResults = [...allResults, ...updatedMeili];
       }
+    }
+
+    if (allResults.length > 0) {
+      return allResults;
     }
 
     // 3. External Fallback (Open Food Facts)
