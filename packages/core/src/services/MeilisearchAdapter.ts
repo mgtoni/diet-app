@@ -27,66 +27,16 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     if (!this.client) return [];
     
     try {
-      const lang = locale.split('-')[0] || 'en';
-      const region = locale.split('-')[1]?.toUpperCase();
-      
-      let countryTag = '';
-      if (region === 'GB' || region === 'UK') countryTag = 'en:united-kingdom';
-      else if (region === 'US') countryTag = 'en:united-states';
-      else if (region === 'FR') countryTag = 'en:france';
-      else if (region === 'ES') countryTag = 'en:spain';
-      
       const index = this.client.index(this.indexName);
       
-      // 1. Fetch top 2 generic items globally that match the query
-      const genericSearch = await index.search(query, {
-        limit: 2,
-        filter: [`locale = '${lang}'`, `brand IS EMPTY`]
+      // Since the database now only contains pristine deduped data,
+      // we can just run a simple search without any filters.
+      const searchResult = await index.search(query, {
+        limit: 20
       });
-      const genericHits = genericSearch.hits;
-
-      // 2. Fetch top 20 local branded items
-      let localBrandedHits: any[] = [];
-      if (countryTag) {
-        const countryFilters = [ `countries = '${countryTag}'` ];
-        if (countryTag === 'en:united-kingdom') {
-            countryFilters.push(`countries = 'en:uk'`, `countries = 'en:great-britain'`, `countries = 'en:england'`, `countries = 'en:scotland'`, `countries = 'en:wales'`);
-        }
-        
-        const localSearch = await index.search(query, {
-          limit: 20,
-          filter: [
-            `locale = '${lang}'`,
-            `brand IS NOT EMPTY`,
-            countryFilters
-          ]
-        });
-        localBrandedHits = localSearch.hits;
-      }
       
-      // Combine them: generic first, then local branded
-      const allHits = [...genericHits, ...localBrandedHits];
-      
-      // Map to Food objects
-      const foods = allHits.map(hit => this.mapToFood(hit));
-
-      // Deduplicate generic items by name (keep highest quality/first seen)
-      const uniqueFoods: Food[] = [];
-      const seenGenericNames = new Set<string>();
-
-      for (const food of foods) {
-        const isGeneric = !food.brand || food.brand.toLowerCase() === 'generic' || food.brand.toLowerCase() === 'unknown';
-        if (isGeneric) {
-          const nameKey = food.name.toLowerCase().trim();
-          if (seenGenericNames.has(nameKey)) {
-            continue; // Skip duplicate generic item
-          }
-          seenGenericNames.add(nameKey);
-        }
-        uniqueFoods.push(food);
-      }
-
-      return uniqueFoods;
+      const foods = searchResult.hits.map(hit => this.mapToFood(hit));
+      return foods;
     } catch (error) {
       console.error('Meilisearch search error:', error);
       return [];
