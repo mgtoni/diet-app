@@ -27,44 +27,18 @@ export class MeilisearchAdapter implements FoodDataAdapter {
     if (!this.client) return [];
 
     try {
-      const lang = locale.split('-')[0] || 'en';
-      const region = locale.split('-')[1]?.toUpperCase();
-      
-      let countryTag = '';
-      if (region === 'GB' || region === 'UK') countryTag = 'en:united-kingdom';
-      else if (region === 'US') countryTag = 'en:united-states';
-      else if (region === 'FR') countryTag = 'en:france';
-      else if (region === 'ES') countryTag = 'en:spain';
-
       const index = this.client.index(this.indexName);
       
-      // 1. Fetch top 2 generic items globally that match the query
-      const genericSearch = await index.search(query, {
-        limit: 2,
-        filter: [`type = 'generic'`]
-      });
-      const genericHits = genericSearch.hits;
-
-      // 2. Fetch top 20 branded items for the user's locale
-      const countryFilters = countryTag ? [ `countries = '${countryTag}'` ] : [];
-      if (countryTag === 'en:united-kingdom') {
-          countryFilters.push(`countries = 'en:uk'`, `countries = 'en:great-britain'`, `countries = 'en:england'`, `countries = 'en:scotland'`, `countries = 'en:wales'`);
-      }
-      
-      let brandedFilter: any[] = [`type = 'branded'`];
-      if (countryFilters.length > 0) {
-        brandedFilter.push(countryFilters);
-      }
-      
-      const localSearch = await index.search(query, {
+      // Single query for everything (No type filter, no strict country filter)
+      // We pass sort: ['type:desc'] so that IF Meilisearch has a tie in exact text relevance, 
+      // 'generic' (g) sorts before 'branded' (b).
+      // IMPORTANT: This requires 'sort' to be listed at the BOTTOM of Meilisearch rankingRules.
+      const searchResult = await index.search(query, {
         limit: 20,
-        filter: brandedFilter
+        sort: ['type:desc']
       });
-      const localBrandedHits = localSearch.hits;
       
-      // Combine them: generic first, then local branded
-      const allHits = [...genericHits, ...localBrandedHits];
-      
+      const allHits = searchResult.hits;
       const foods = allHits.map(hit => this.mapToFood(hit));
       
       return foods;
